@@ -50,26 +50,6 @@ namespace BE_SWP391.Controllers
             if (!success) return NotFound();
             return NoContent();
         }
-
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var response = _userService.Login(request);
-            if (response == null)
-                return Unauthorized(new ApiResponse
-                {
-                    Success = false,
-                    Message = "Invalid username or password"
-                });
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var success = _userService.Delete(id);
-            if (!success) return NotFound();
         [HttpPost("login")]
         public IActionResult Login([FromBody]LoginRequest request)
         {
@@ -88,8 +68,5 @@ namespace BE_SWP391.Controllers
                 Success = true,
             });
         }
-
-
->>>>>>>>> Temporary merge branch 2
     }
 }
