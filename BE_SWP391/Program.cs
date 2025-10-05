@@ -30,6 +30,10 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategorySevice>();
 builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
 builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
+builder.Services.AddScoped<IDataPackageRepository, DataPackageRepository>();
+builder.Services.AddScoped<IDataPackageService, DataPackageService>();
+builder.Services.AddScoped<IMetaDataRepository, MetaDataRepository>();
+builder.Services.AddScoped<IMetaDataService, MetaDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

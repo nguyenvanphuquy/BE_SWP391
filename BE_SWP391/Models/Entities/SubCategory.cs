@@ -17,5 +17,5 @@ public partial class SubCategory
 
     public virtual Category? Category { get; set; }
 
-    public virtual ICollection<Datapackage> Datapackages { get; set; } = new List<Datapackage>();
+    public virtual ICollection<DataPackage> Datapackages { get; set; } = new List<DataPackage>();
 }

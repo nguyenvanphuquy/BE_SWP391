@@ -31,7 +31,7 @@ public partial class User
 
     public virtual ConsumerProfile? ConsumerProfile { get; set; }
 
-    public virtual ICollection<Datapackage> Datapackages { get; set; } = new List<Datapackage>();
+    public virtual ICollection<DataPackage> Datapackages { get; set; } = new List<DataPackage>();
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 

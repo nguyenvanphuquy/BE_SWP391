@@ -27,7 +27,7 @@ public partial class EvMarketContext : DbContext
 
     public virtual DbSet<ConsumerProfile> ConsumerProfiles { get; set; }
 
-    public virtual DbSet<Datapackage> Datapackages { get; set; }
+    public virtual DbSet<DataPackage> DataPackages { get; set; }
 
     public virtual DbSet<Download> Downloads { get; set; }
 
@@ -160,7 +160,7 @@ public partial class EvMarketContext : DbContext
                 .HasConstraintName("FK__ConsumerP__consu__4316F928");
         });
 
-        modelBuilder.Entity<Datapackage>(entity =>
+        modelBuilder.Entity<DataPackage>(entity =>
         {
             entity.HasKey(e => e.PackageId).HasName("PK__Datapack__63846AE8FEA243C5");
 

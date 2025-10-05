@@ -21,7 +21,7 @@ public partial class MetaData
 
     public virtual ICollection<BatteryMetaData> BatteryMetaData { get; set; } = new List<BatteryMetaData>();
 
-    public virtual ICollection<Datapackage> Datapackages { get; set; } = new List<Datapackage>();
+    public virtual ICollection<DataPackage> Datapackages { get; set; } = new List<DataPackage>();
 
     public virtual ICollection<RegionMetaData> RegionMetaData { get; set; } = new List<RegionMetaData>();
 

@@ -19,7 +19,7 @@ public partial class Download
 
     public string? Status { get; set; }
 
-    public virtual Datapackage Package { get; set; } = null!;
+    public virtual DataPackage Package { get; set; } = null!;
 
     public virtual Transaction Transaction { get; set; } = null!;
 }

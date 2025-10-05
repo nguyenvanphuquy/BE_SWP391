@@ -21,7 +21,7 @@ public partial class Feedback
 
     public int PackageId { get; set; }
 
-    public virtual Datapackage Package { get; set; } = null!;
+    public virtual DataPackage Package { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
 }

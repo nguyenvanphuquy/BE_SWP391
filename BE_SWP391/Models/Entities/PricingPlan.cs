@@ -21,5 +21,5 @@ public partial class PricingPlan
 
     public decimal? Discount { get; set; }
 
-    public virtual Datapackage Package { get; set; } = null!;
+    public virtual DataPackage Package { get; set; } = null!;
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BE_SWP391.Models.Entities;
 
-public partial class Datapackage
+public partial class DataPackage
 {
     public int PackageId { get; set; }
 
