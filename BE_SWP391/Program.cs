@@ -34,6 +34,31 @@ builder.Services.AddScoped<IDataPackageRepository, DataPackageRepository>();
 builder.Services.AddScoped<IDataPackageService, DataPackageService>();
 builder.Services.AddScoped<IMetaDataRepository, MetaDataRepository>();
 builder.Services.AddScoped<IMetaDataService, MetaDataService>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();    
+builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IRevenueShareRepository, RevenueShareRepository>();
+builder.Services.AddScoped<IRevenueShareService, RevenueShareService>();
+builder.Services.AddScoped<IRegionRepository, RegionRepository>();
+builder.Services.AddScoped<IRegionService, RegionService>();
+builder.Services.AddScoped<IPricingPlanRepository, PricingPlanRepository>();
+builder.Services.AddScoped<IPricingPlanService, PricingPlanService>();
+builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IDownloadRepository, DownloadRepository>();
+builder.Services.AddScoped<IDownloadService, DownloadService>();
+
+
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

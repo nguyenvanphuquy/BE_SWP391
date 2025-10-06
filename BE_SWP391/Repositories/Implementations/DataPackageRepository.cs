@@ -19,7 +19,7 @@ namespace BE_SWP391.Repositories.Implementations
         }
         public IEnumerable<DataPackage> GetAll()
         {
-            return _context.DataPackages.ToList().Select(ToResponse);
+            return _context.DataPackages.ToList();
         }
         public void Create(DataPackage dataPackage)
         {
@@ -36,21 +36,6 @@ namespace BE_SWP391.Repositories.Implementations
             _context.DataPackages.Remove(dataPackage);
             _context.SaveChanges();
         }
-        public static DataPackage ToResponse(DataPackage dataPackage)
-        {
-            return new DataPackage
-            {
-                PackageId = dataPackage.PackageId,
-                PackageName = dataPackage.PackageName,
-                Description = dataPackage.Description,
-                Version = dataPackage.Version,
-                ReleaseDate = dataPackage.ReleaseDate,
-                LastUpdate = dataPackage.LastUpdate,
-                Status = dataPackage.Status,
-                UserId = dataPackage.UserId,
-                SubcategoryId = dataPackage.SubcategoryId,
-                MetadataId = dataPackage.MetadataId
-            };
-        }
+
     }
 }
