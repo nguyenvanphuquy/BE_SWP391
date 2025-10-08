@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.DTOs.Request;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 namespace BE_SWP391.Controllers
 {
     [Route("api/[controller]")]
@@ -16,6 +17,7 @@ namespace BE_SWP391.Controllers
         {
             _dataPackageService = dataPackageService;
         }
+
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -32,6 +34,7 @@ namespace BE_SWP391.Controllers
             }
             return Ok(dataPackage);
         }
+        [Authorize]
         [HttpPost]
         public IActionResult Create([FromBody] DataPackageRequest request)
         {

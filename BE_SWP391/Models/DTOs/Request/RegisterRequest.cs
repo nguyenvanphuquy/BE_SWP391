@@ -9,8 +9,6 @@
         public String FullName { get; set; }
         public String Organization { get; set; }
 
-        public int RoleId { get; set; }
-
 
     }
 }

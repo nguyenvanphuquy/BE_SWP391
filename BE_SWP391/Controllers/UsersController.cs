@@ -33,16 +33,25 @@ namespace BE_SWP391.Controllers
             return Ok(user);
         }
 
-        [HttpPost]
+        [HttpPost("Register")]
         public IActionResult Create([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            var user = _userService.Create(request);
-            return CreatedAtAction(nameof(GetById), new { id = user.UserId }, user);
+            try
+            {
+                var user = _userService.Create(request);
+                return CreatedAtAction(nameof(GetById), new { id = user.UserId }, user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
         }
-
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -51,7 +60,7 @@ namespace BE_SWP391.Controllers
             return NoContent();
         }
         [HttpPost("login")]
-        public IActionResult Login([FromBody]LoginRequest request)
+        public IActionResult Login([FromBody] LoginRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -66,7 +75,20 @@ namespace BE_SWP391.Controllers
             return Ok(new ApiResponse
             {
                 Success = true,
+                Message = "Login successful",
+                Data = response
             });
         }
+        [HttpPost("logout")]
+        public IActionResult Logout()
+            {
+
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Logout successful"
+                });
+            }
+        
     }
 }
