@@ -111,7 +111,7 @@ namespace BE_SWP391.Services.Implementations
                 Expires = DateTime.UtcNow.AddHours(1),
                 Username = user.Username,
                 Email = user.Email,
-                Role = user.RoleId.ToString()
+                RoleId = user.RoleId,
             };
 
         }
