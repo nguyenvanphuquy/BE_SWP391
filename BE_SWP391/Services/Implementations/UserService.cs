@@ -1,4 +1,5 @@
 ﻿using BCrypt.Net;
+using BE_SWP391.Configurations;
 using BE_SWP391.Models.DTOs.Request;
 using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
@@ -13,9 +14,11 @@ namespace BE_SWP391.Services.Implementations
     public class UserService : IUserService
     {
         public readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
+        public readonly JwtTokenGenerator _jwtTokenGenerator;
+        public UserService(IUserRepository userRepository, JwtTokenGenerator jwtTokenGenerator)
         {
             _userRepository = userRepository;
+            _jwtTokenGenerator = jwtTokenGenerator;
         }
         public UserResponse? GetById(int id)
         {
@@ -77,36 +80,17 @@ namespace BE_SWP391.Services.Implementations
             _userRepository.UpdateStatus(id, "Inactive");
             return true;
         }
-        private string GenerateJwtToken(User user)
-        {
-            // Lấy secret key từ cấu hình hoặc truyền vào constructor
-            var secretKey = "my_very_secret_key_for_jwt_token_123456"; // Nên lấy từ cấu hình
-            var key = Encoding.UTF8.GetBytes(secretKey);
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.RoleId.ToString())
-        }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
+
         public LoginResponse? Login(LoginRequest request)
         {
             var user = _userRepository.GetByUsername(request.Username);
             if (user == null) return null;
             bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
             if (!isValid) return null;
-            var tokenString = GenerateJwtToken(user);
+            var token = _jwtTokenGenerator.GenerateToken(user);
             return new LoginResponse
             {
-                Token = tokenString,
+                Token = token,
                 RefreshToken = "",
                 Expires = DateTime.UtcNow.AddHours(1),
                 Username = user.Username,
@@ -120,7 +104,7 @@ namespace BE_SWP391.Services.Implementations
         {
             UserId = user.UserId.ToString(),
             UserName = user.Username,
-            Password = user.PasswordHash,
+            PasswordHash = user.PasswordHash,
             Email = user.Email,
             FullName = user.FullName ?? string.Empty,
             Phone = user.Phone ?? string.Empty,

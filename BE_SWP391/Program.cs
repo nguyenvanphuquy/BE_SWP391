@@ -1,4 +1,5 @@
-﻿using BE_SWP391.Data;
+﻿using BE_SWP391.Configurations;
+using BE_SWP391.Data;
 using BE_SWP391.Repositories.Implementations;
 using BE_SWP391.Repositories.Interfaces;
 using BE_SWP391.Services.Implementations;
@@ -16,12 +17,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-byte[] secretBytes = new byte[64];
-using (var random = RandomNumberGenerator.Create())
-{
-    random.GetBytes(secretBytes);  
-}
-string secretKey = Convert.ToBase64String(secretBytes);
+var secretKey = builder.Configuration["JwtSettings:SecretKey"];
+var issuer = builder.Configuration["JwtSettings:Issuer"];
+var audience = builder.Configuration["JwtSettings:Audience"];
 // Add services to the container.
 
 
@@ -46,6 +44,29 @@ builder.Services.AddSwaggerGen(c =>
         Title = "BE_SWP391 API",
         Version = "v1",
         Description = "API documentation for EV Market Project"
+    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
     });
 });
 builder.Services.AddDbContext<EvMarketContext>(options =>
@@ -80,6 +101,10 @@ builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IDownloadRepository, DownloadRepository>();
 builder.Services.AddScoped<IDownloadService, DownloadService>();
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.AddSingleton<JwtSettings>(builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>());
+builder.Services.AddScoped<JwtTokenGenerator>();
+
 
 
 
@@ -91,11 +116,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = true,
+            ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "JwtTokenForBE",
+            ValidIssuer  = issuer,
+            ValidAudience = audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
         };
     });

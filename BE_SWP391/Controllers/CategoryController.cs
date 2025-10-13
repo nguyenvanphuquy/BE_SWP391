@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BE_SWP391.Models.DTOs.Request;
 using BE_SWP391.Models.DTOs.Response;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BE_SWP391.Controllers
 {
@@ -15,6 +16,7 @@ namespace BE_SWP391.Controllers
         {
             this.categoryService = categoryService;
         }
+
         [HttpGet]
         public IActionResult GetAll()
         {
