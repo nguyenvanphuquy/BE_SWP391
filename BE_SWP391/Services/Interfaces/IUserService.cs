@@ -7,7 +7,9 @@ namespace BE_SWP391.Services.Interfaces
     {
         UserResponse? GetById(int id);
         IEnumerable<UserResponse> GetAll();
-        UserResponse Create(RegisterRequest request);
+        IEnumerable<UserInforResponse> GetAllInfor();
+        UserResponse Create(UserRequest request);
+        UserResponse Register(RegisterRequest request);
         //ApiResponse Update(UserResponse user);
         bool Delete(int id);
         LoginResponse? Login(LoginRequest request);

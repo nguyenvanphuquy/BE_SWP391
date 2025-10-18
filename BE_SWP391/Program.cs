@@ -73,6 +73,7 @@ builder.Services.AddDbContext<EvMarketContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("EvMarketContext")));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategorySevice>();
 builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
@@ -104,6 +105,7 @@ builder.Services.AddScoped<IDownloadService, DownloadService>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.AddSingleton<JwtSettings>(builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>());
 builder.Services.AddScoped<JwtTokenGenerator>();
+
 
 
 

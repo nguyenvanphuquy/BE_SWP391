@@ -16,7 +16,7 @@ namespace BE_SWP391.Controllers
         {
             this.categoryService = categoryService;
         }
-
+        [Authorize]
         [HttpGet]
         public IActionResult GetAll()
         {

@@ -32,15 +32,42 @@ namespace BE_SWP391.Controllers
             if (user == null) return NotFound();
             return Ok(user);
         }
-
-        [HttpPost("Register")]
-        public IActionResult Create([FromBody] RegisterRequest request)
+        [HttpGet("Infor")]
+        public IActionResult GetUserInfor()
+        {
+            var users = _userService.GetAllInfor();
+            return Ok(users);
+        }
+        [HttpPost("Create")]
+        public IActionResult Create([FromBody] UserRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             try
             {
                 var user = _userService.Create(request);
+                return CreatedAtAction(nameof(GetById), new { id = user.UserId }, user);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Success = false,
+                    Message = ex.Message,
+                });
+            }
+
+
+        }
+        [HttpPost("Register")]
+        public IActionResult Register([FromBody] RegisterRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var user = _userService.Register(request);
                 return CreatedAtAction(nameof(GetById), new { id = user.UserId }, user);
             }
             catch (Exception ex)

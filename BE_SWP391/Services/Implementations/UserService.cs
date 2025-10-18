@@ -5,19 +5,18 @@ using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
 using BE_SWP391.Services.Interfaces;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 namespace BE_SWP391.Services.Implementations
 {
     public class UserService : IUserService
     {
         public readonly IUserRepository _userRepository;
+        public readonly IRoleRepository _roleRepository;
         public readonly JwtTokenGenerator _jwtTokenGenerator;
-        public UserService(IUserRepository userRepository, JwtTokenGenerator jwtTokenGenerator)
+        public UserService(IUserRepository userRepository,IRoleRepository roleRepository, JwtTokenGenerator jwtTokenGenerator)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
             _jwtTokenGenerator = jwtTokenGenerator;
         }
         public UserResponse? GetById(int id)
@@ -31,7 +30,52 @@ namespace BE_SWP391.Services.Implementations
         {
             return _userRepository.GetAll().Select(ToResponse);
         }
-        public UserResponse Create(RegisterRequest request)
+        public IEnumerable<UserInforResponse> GetAllInfor()
+        {
+            var users = _userRepository.GetAllInfor();
+            var userInforResponses = users.Select(user => new UserInforResponse
+            {
+                id = user.UserId,
+                name = user.FullName ?? string.Empty,
+                email = user.Email,
+                roleName = user.Role != null ? user.Role.RoleName : "N/A",
+                dataSet = user.Datapackages != null ? user.Datapackages.Count : 0,
+                status = user.Status
+            });
+            return userInforResponses;
+        }
+        public UserResponse Create(UserRequest request)
+        {
+            if (_userRepository.GetByUsername(request.UserName) != null)
+            {
+                throw new Exception("Username already exists");
+            }
+            if (_userRepository.GetByEmail(request.Email) != null)
+            {
+                throw new Exception("Email already exists");
+            }
+            var role = _roleRepository.GetByName(request.RoleName);
+            if (role == null)
+            {
+                throw new Exception("Vai trò không hợp lệ");
+            }
+            var user = new User
+            {
+                Username = request.UserName,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Email = request.Email,
+                FullName = request.FullName,
+                Phone = request.Phone,
+                Organization = request.Organization,
+                Status = "Active",
+                RoleId = role.RoleId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            _userRepository.Create(user);
+            return ToResponse(user);
+        }
+        public UserResponse Register(RegisterRequest request)
         {
             if(_userRepository.GetByUsername(request.UserName) != null)
             {
@@ -54,7 +98,7 @@ namespace BE_SWP391.Services.Implementations
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-            _userRepository.Create(user);
+            _userRepository.Register(user);
             return ToResponse(user);
         }
         //public UserResponse? Update(int id, UpdateUserRequest request)
