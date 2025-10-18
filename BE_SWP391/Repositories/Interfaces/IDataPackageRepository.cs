@@ -10,6 +10,8 @@ namespace BE_SWP391.Repositories.Interfaces
         void Create(DataPackage dataPackage);
         void Update(DataPackage dataPackage);
         void Delete(DataPackage dataPackage);
-
+        int CountPending();
+        int CountApproved();
+        int CountRejected();
     }
 }

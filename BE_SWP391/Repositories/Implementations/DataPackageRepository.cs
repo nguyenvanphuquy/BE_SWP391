@@ -37,5 +37,17 @@ namespace BE_SWP391.Repositories.Implementations
             _context.SaveChanges();
         }
 
+        public int CountPending()
+        {
+            return _context.DataPackages.Count(x => x.Status == "Pending");
+        }
+        public int CountApproved()
+        {
+            return _context.DataPackages.Count(x => x.Status == "Approved");
+        }
+        public int CountRejected()
+        {
+            return _context.DataPackages.Count(x => x.Status == "Rejected");
+        }
     }
 }

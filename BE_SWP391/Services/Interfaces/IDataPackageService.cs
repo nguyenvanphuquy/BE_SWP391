@@ -10,5 +10,6 @@ namespace BE_SWP391.Services.Interfaces
         DataPackageResponse? Update(int id, DataPackageRequest request);
         bool Detele(int id);
 
+        object GetStatusCount();
     }
 }

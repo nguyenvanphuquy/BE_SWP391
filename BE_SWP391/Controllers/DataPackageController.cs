@@ -34,7 +34,12 @@ namespace BE_SWP391.Controllers
             }
             return Ok(dataPackage);
         }
-        [Authorize]
+        [HttpGet("Count")]
+        public IActionResult GetStatusCount()
+        {
+            var count = _dataPackageService.GetStatusCount();
+            return Ok(count);
+        }
         [HttpPost]
         public IActionResult Create([FromBody] DataPackageRequest request)
         {
@@ -70,5 +75,6 @@ namespace BE_SWP391.Controllers
             }
             return NoContent();
         }
+
     }
 }

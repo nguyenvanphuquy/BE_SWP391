@@ -69,6 +69,18 @@ namespace BE_SWP391.Services.Implementations
             _dataPackageRepository.Delete(dataPackage);
             return true;
         }
+        public object GetStatusCount()
+        {
+            var pending = _dataPackageRepository.CountPending();
+            var approved = _dataPackageRepository.CountApproved();
+            var rejected= _dataPackageRepository.CountRejected();
+            return new
+            {
+                pendingCount = pending,
+                approvedCount = approved,
+                rejectedCount = rejected
+            };
+        }
         public static DataPackageResponse ToResponse(DataPackage dataPackage)
         {
             return new DataPackageResponse
