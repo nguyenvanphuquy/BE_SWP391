@@ -81,6 +81,10 @@ namespace BE_SWP391.Services.Implementations
                 rejectedCount = rejected
             };
         }
+        public List<DataForAdminResponse> GetDataForAdmin()
+        {
+            return _dataPackageRepository.GetDataForAdmin();
+        }
         public static DataPackageResponse ToResponse(DataPackage dataPackage)
         {
             return new DataPackageResponse

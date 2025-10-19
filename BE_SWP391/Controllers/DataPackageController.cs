@@ -40,6 +40,18 @@ namespace BE_SWP391.Controllers
             var count = _dataPackageService.GetStatusCount();
             return Ok(count);
         }
+        [HttpGet("DataForAdmin")]
+        public IActionResult GetDataForAdmin()
+        {
+            var data = _dataPackageService.GetDataForAdmin();
+            return Ok(new
+            {
+
+
+                success = true,
+                data = data
+            });
+        }
         [HttpPost]
         public IActionResult Create([FromBody] DataPackageRequest request)
         {

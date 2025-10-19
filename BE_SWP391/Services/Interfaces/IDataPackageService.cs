@@ -11,5 +11,6 @@ namespace BE_SWP391.Services.Interfaces
         bool Detele(int id);
 
         object GetStatusCount();
+        List<DataForAdminResponse> GetDataForAdmin();
     }
 }

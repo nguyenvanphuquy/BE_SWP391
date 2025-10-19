@@ -1,4 +1,5 @@
 ﻿using BE_SWP391.Data;
+using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
 
 namespace BE_SWP391.Repositories.Interfaces
@@ -13,5 +14,6 @@ namespace BE_SWP391.Repositories.Interfaces
         int CountPending();
         int CountApproved();
         int CountRejected();
+        List<DataForAdminResponse> GetDataForAdmin();
     }
 }

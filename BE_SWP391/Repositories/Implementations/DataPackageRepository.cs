@@ -1,4 +1,5 @@
 ﻿using BE_SWP391.Data;
+using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
 using System.Collections.Generic;
@@ -48,6 +49,24 @@ namespace BE_SWP391.Repositories.Implementations
         public int CountRejected()
         {
             return _context.DataPackages.Count(x => x.Status == "Rejected");
+        }
+        public List<DataForAdminResponse> GetDataForAdmin()
+        {
+            var data = (from p in _context.DataPackages
+                        join u in _context.Users on p.UserId equals u.UserId
+                        join s in _context.SubCategorys on p.SubcategoryId equals s.SubcategoryId
+                        join m in _context.MetaDatas on p.MetadataId equals m.MetadataId
+                        select new DataForAdminResponse
+                        {
+                            PackageId = p.PackageId,
+                            PackageName = p.PackageName,
+                            ProviderName = u.FullName,
+                            CategoryName = s.SubcategoryName,
+                            FileSize = m.FileSize,
+                            CreatedAt = m.CreatedAt,
+                            Status = p.Status,
+                        }).ToList();
+            return data;
         }
     }
 }
