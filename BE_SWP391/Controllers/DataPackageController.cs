@@ -87,6 +87,17 @@ namespace BE_SWP391.Controllers
             }
             return NoContent();
         }
+        [HttpPut("{packageId}/status")]
+        public IActionResult ChageStatus(int packageId, ChageStatusRequest request)
+        {
+            var ChageStatus = _dataPackageService.ChageStatus(packageId, request);
+            if (!ChageStatus)
+            {
+                return NotFound(new { message = "Không tìm thấy gói dữ liệu" });
+            }
+
+            return Ok(new { message = "Cập nhật trạng thái thành công" });
+        }
 
     }
 }

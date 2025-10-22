@@ -68,5 +68,10 @@ namespace BE_SWP391.Repositories.Implementations
                         }).ToList();
             return data;
         }
+        public void ChageStatus(DataPackage dataPackage)
+        {
+            _context.DataPackages.Update(dataPackage);
+            _context.SaveChanges();
+        }
     }
 }

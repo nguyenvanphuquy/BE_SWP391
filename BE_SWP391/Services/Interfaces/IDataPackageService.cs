@@ -12,5 +12,7 @@ namespace BE_SWP391.Services.Interfaces
 
         object GetStatusCount();
         List<DataForAdminResponse> GetDataForAdmin();
+        bool ChageStatus(int PackedId, ChageStatusRequest request   );
+
     }
 }

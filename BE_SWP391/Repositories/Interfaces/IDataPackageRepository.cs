@@ -15,5 +15,7 @@ namespace BE_SWP391.Repositories.Interfaces
         int CountApproved();
         int CountRejected();
         List<DataForAdminResponse> GetDataForAdmin();
+        void ChageStatus(DataPackage dataPackage);
+
     }
 }

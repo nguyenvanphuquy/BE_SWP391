@@ -73,7 +73,7 @@ namespace BE_SWP391.Services.Implementations
         {
             var pending = _dataPackageRepository.CountPending();
             var approved = _dataPackageRepository.CountApproved();
-            var rejected= _dataPackageRepository.CountRejected();
+            var rejected = _dataPackageRepository.CountRejected();
             return new
             {
                 pendingCount = pending,
@@ -100,6 +100,24 @@ namespace BE_SWP391.Services.Implementations
                 SubcategoryId = dataPackage.SubcategoryId,
                 MetadataId = dataPackage.MetadataId
             };
+        }
+        public bool ChageStatus(int DataPackageId, ChageStatusRequest request)
+        {
+            var dataPackage = _dataPackageRepository.GetById(DataPackageId);
+            if (dataPackage == null)
+            {
+                throw new Exception("Không tìm thấy dữ liệu");
+            }
+            var validStatus = new[] { "Pending", "Approved", "Rejected" };
+            if (!validStatus.Contains(request.newStatus))
+            {
+                throw new Exception("Trạng thái không hợp lệ");
+            }
+            dataPackage.Status = request.newStatus;
+            dataPackage.LastUpdate = DateTime.UtcNow;
+            _dataPackageRepository.ChageStatus(dataPackage);
+            return true;
+
         }
     }
 }

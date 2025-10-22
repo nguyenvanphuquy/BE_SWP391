@@ -5,7 +5,7 @@ using BE_SWP391.Models.DTOs.Request;
 using BE_SWP391.Models;
 using BE_SWP391.Services.Interfaces;
 
-namespace BE_SWP391.Repositories.Implementations
+namespace BE_SWP391.Services.Implementations
 {
     public class DownloadService : IDownloadService
     {
