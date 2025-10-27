@@ -17,5 +17,6 @@ namespace BE_SWP391.Repositories.Interfaces
         List<DataForAdminResponse> GetDataForAdmin();
         void ChageStatus(DataPackage dataPackage);
 
+        List<DataPendingRepsonse> GetDataPending();
     }
 }

@@ -119,5 +119,10 @@ namespace BE_SWP391.Services.Implementations
             return true;
 
         }
+        public List<DataPendingRepsonse> GetPendingData()
+        {
+            return _dataPackageRepository.GetDataPending();
+        }
+
     }
 }

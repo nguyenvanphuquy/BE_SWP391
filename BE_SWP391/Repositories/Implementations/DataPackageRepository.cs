@@ -73,5 +73,21 @@ namespace BE_SWP391.Repositories.Implementations
             _context.DataPackages.Update(dataPackage);
             _context.SaveChanges();
         }
+        public List<DataPendingRepsonse> GetDataPending()
+        {
+            var result = (from p in _context.DataPackages
+                          join u in _context.Users on p.UserId equals u.UserId
+                          where p.Status == "Pending"
+                          orderby p.ReleaseDate descending
+                          select new DataPendingRepsonse
+                          {
+                              PackageName = p.PackageName,
+                              ProviderName = u.FullName,
+                              CreateAt = p.ReleaseDate
+                          })
+                          .ToList();
+            return result;
+            
+        }
     }
 }

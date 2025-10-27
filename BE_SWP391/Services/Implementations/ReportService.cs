@@ -29,5 +29,21 @@ namespace BE_SWP391.Services.Implementations
         {
             return _repository.GetTotal();
         }
+        public List<TopPackageResponse> GetTopPackages(int top = 10)
+        {
+            return _repository.GetTopDownloadedPackages(top);
+        }
+        public List<TopProviderResponse> GetTopProviders(int top)
+        {
+            return _repository.GetTopProviders(top);
+        }
+        public List<CategoryAnalyticsResponse> GetCategoryAnalytics()
+        {
+            return _repository.GetCategoryAnalytics();
+        }
+        public DashboardSummaryResponse GetDashboardSummary()
+        {
+            return _repository.GetDashboardSummary();
+        }
     }
 }

@@ -8,5 +8,10 @@ namespace BE_SWP391.Repositories.Interfaces
         decimal GetTotalCommission();
         int GetTotalTransacton();
         AnalyticsResponse GetTotal();
+        List<TopPackageResponse> GetTopDownloadedPackages(int top = 10);
+        List<TopProviderResponse> GetTopProviders(int top);
+        List<CategoryAnalyticsResponse> GetCategoryAnalytics();
+        DashboardSummaryResponse GetDashboardSummary(); 
+
     }
 }

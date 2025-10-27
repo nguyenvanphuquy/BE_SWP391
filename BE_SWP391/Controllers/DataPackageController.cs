@@ -98,6 +98,11 @@ namespace BE_SWP391.Controllers
 
             return Ok(new { message = "Cập nhật trạng thái thành công" });
         }
-
+        [HttpGet("pending")]
+        public IActionResult GetPendingPackages()
+        {
+            var data = _dataPackageService.GetPendingData();
+            return Ok(data);
+        }
     }
 }
