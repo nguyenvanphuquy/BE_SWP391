@@ -1,13 +1,10 @@
 ﻿namespace BE_SWP391.Models.DTOs.Response
 {
-    public class TopPackageResponse
+    public class DataPendingRepsonse
     {
-            
         public string PackageName { get; set; }
-        public int TotalDownloads { get; set; }
         public string ProviderName { get; set; }
-        public string CategoryName { get; set; }
+        public DateOnly? CreateAt { get; set; }
 
     }
 }
-

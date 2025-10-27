@@ -11,7 +11,7 @@ public partial class Download
 
     public int PackageId { get; set; }
 
-    public DateTime? DownloadDate { get; set; }
+    public DateTime DownloadDate { get; set; }
 
     public string? FileUrl { get; set; }
 

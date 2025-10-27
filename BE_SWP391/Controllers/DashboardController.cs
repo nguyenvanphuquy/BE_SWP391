@@ -23,5 +23,28 @@ namespace BE_SWP391.Controllers
         {
             return Ok(_reportService.GetTotal());
         }
+        [HttpGet("top-packages")]
+        public IActionResult GetTopPackages(int top = 10)
+        {
+            return Ok(_reportService.GetTopPackages(top));
+        }
+        [HttpGet("top-providers")]
+        public IActionResult GetTopProviders([FromQuery] int top = 10)
+        {
+            var result = _reportService.GetTopProviders(top);
+            return Ok(result);
+        }
+        [HttpGet("category-analytics")]
+        public IActionResult GetCategoryAnalytics()
+        {
+            var result = _reportService.GetCategoryAnalytics();
+            return Ok(result);
+        }
+        [HttpGet("dashboard/summary")]
+        public IActionResult GetSummary()
+        {
+            var result = _reportService.GetDashboardSummary();
+            return Ok(result);
+        }
     }
 }

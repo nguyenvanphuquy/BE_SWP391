@@ -6,5 +6,9 @@ namespace BE_SWP391.Services.Interfaces
     {
         DashboardStatsResponse DashboardStats();
         AnalyticsResponse GetTotal();
+        List<TopPackageResponse> GetTopPackages(int top = 10);
+        List<TopProviderResponse> GetTopProviders(int top);
+        List<CategoryAnalyticsResponse> GetCategoryAnalytics();
+        DashboardSummaryResponse GetDashboardSummary();
     }
 }
