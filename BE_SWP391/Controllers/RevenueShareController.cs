@@ -65,5 +65,10 @@ namespace BE_SWP391.Controllers
             }
             return NoContent();
         }
+        [HttpGet("Profit")]
+        public IActionResult GetProfit()
+        {
+            return Ok(_revenueShareService.GetAllProfit());
+        }
     }
 }

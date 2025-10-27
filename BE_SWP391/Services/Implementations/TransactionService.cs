@@ -86,6 +86,14 @@ namespace BE_SWP391.Services.Implementations
                 InvoiceId = transaction.InvoiceId
             };
         }
+        public List<RecentTransactionResponse> GetRecentTransactions(int count = 5)
+        {
+            return _transactionRepository.GetRecentTransaction();
+        }
+        public ReportTransactionResponse GetReportTransaction()
+        {
+            return _transactionRepository.GetReportTransaction();
+        }
 
     }
 }

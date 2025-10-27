@@ -75,6 +75,11 @@ namespace BE_SWP391.Services.Implementations
                 UserId = revenueShare.UserId
             };
         }
+        public List<ProfitResponse> GetAllProfit()
+
+        {
+            return _revenueShareRepository.GetProfit();
+        }
 
     }
 }

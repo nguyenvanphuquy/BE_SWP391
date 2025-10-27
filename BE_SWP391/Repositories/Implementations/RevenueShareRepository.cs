@@ -2,6 +2,7 @@
 using BE_SWP391.Models.Entities;
 using BE_SWP391.Models;
 using BE_SWP391.Repositories.Interfaces;
+using BE_SWP391.Models.DTOs.Response;
 
 namespace BE_SWP391.Repositories.Implementations
 {
@@ -24,7 +25,7 @@ namespace BE_SWP391.Repositories.Implementations
         {
             _context.RevenueShares.Add(revenueShare);
             _context.SaveChanges();
-        }
+        }       
         public void Update(RevenueShare revenueShare)
         {
             _context.RevenueShares.Update(revenueShare);
@@ -34,6 +35,20 @@ namespace BE_SWP391.Repositories.Implementations
         {
                 _context.RevenueShares.Remove(revenueShare);
                 _context.SaveChanges();
+        }
+        public List<ProfitResponse> GetProfit()
+        {
+            var profit = (from rs in _context.RevenueShares
+                          join user in _context.Users on rs.UserId equals user.UserId
+                          group new { rs, user } by new { rs.UserId, user.Username } into g
+                          select new ProfitResponse
+                          {
+                              ProviderName = g.Key.Username,
+                              SharePercentage = g.First().rs.SharePercentage,
+                              PlatformPercentage = 100 - g.First().rs.SharePercentage
+                          })
+                           .ToList();
+            return profit;
         }
     }
 }

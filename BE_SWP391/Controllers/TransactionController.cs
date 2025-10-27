@@ -65,5 +65,15 @@ namespace BE_SWP391.Controllers
             }
             return NoContent();
         }
+        [HttpGet("GetRecent")]
+        public IActionResult GetRecentTransaction(int count = 5)
+        {
+            return Ok(_transactionService.GetRecentTransactions());
+        }
+        [HttpGet("ReportTransaction")]
+        public IActionResult GetReportTransaction()
+        {
+            return Ok(_transactionService.GetReportTransaction());
+        }
     }
 }

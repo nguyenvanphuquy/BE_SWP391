@@ -10,5 +10,7 @@ namespace BE_SWP391.Services.Interfaces
         TransactionResponse? Create(TransactionRequest request);
         TransactionResponse? Update(int id, TransactionRequest request);
         bool Delete(int id);
+        List<RecentTransactionResponse> GetRecentTransactions(int count = 5);
+        ReportTransactionResponse GetReportTransaction();
     }
 }

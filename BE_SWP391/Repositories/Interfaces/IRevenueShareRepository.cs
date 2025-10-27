@@ -1,4 +1,5 @@
 ﻿using BE_SWP391.Models;
+using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
 namespace BE_SWP391.Repositories.Interfaces
 {
@@ -9,5 +10,6 @@ namespace BE_SWP391.Repositories.Interfaces
         void Create(RevenueShare revenueShare);
         void Update(RevenueShare revenueShare);
         void Delete(RevenueShare revenueShare);
+        List<ProfitResponse> GetProfit();
     }
 }

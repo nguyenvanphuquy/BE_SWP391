@@ -9,5 +9,6 @@ namespace BE_SWP391.Services.Interfaces
         RevenueShareResponse? Create(RevenueShareRequest request);
         RevenueShareResponse? Update(int id, RevenueShareRequest request);
         bool Delete(int id);
+        List<ProfitResponse> GetAllProfit();
     }
 }
