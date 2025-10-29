@@ -7,6 +7,8 @@ public partial class MetaData
 {
     public int MetadataId { get; set; }
 
+    public string? Type { get; set; }
+
     public string? Title { get; set; }
 
     public string? Description { get; set; }
@@ -21,7 +23,7 @@ public partial class MetaData
 
     public virtual ICollection<BatteryMetaData> BatteryMetaData { get; set; } = new List<BatteryMetaData>();
 
-    public virtual ICollection<DataPackage> Datapackages { get; set; } = new List<DataPackage>();
+    public virtual ICollection<DataPackage> DataPackages { get; set; } = new List<DataPackage>();
 
     public virtual ICollection<RegionMetaData> RegionMetaData { get; set; } = new List<RegionMetaData>();
 

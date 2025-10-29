@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BE_SWP391.Models;
 using BE_SWP391.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -64,13 +63,14 @@ public partial class EvMarketContext : DbContext
     public virtual DbSet<VehicleMetaData> VehicleMetaDatas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=localhost;uid=sa;pwd=1234567890;database= EV_Market;TrustServerCertificate=True;");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("server=localhost; database=EV_Market; uid=sa; pwd=1234567890; TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AdminProfile>(entity =>
         {
-            entity.HasKey(e => e.AdminId).HasName("PK__AdminPro__43AA4141208E5128");
+            entity.HasKey(e => e.AdminId).HasName("PK__AdminPro__43AA41410EEC3C26");
 
             entity.Property(e => e.AdminId)
                 .ValueGeneratedNever()
@@ -85,7 +85,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Battery>(entity =>
         {
-            entity.HasKey(e => e.BatteryId).HasName("PK__Batterys__31C8DB8E45602F2B");
+            entity.HasKey(e => e.BatteryId).HasName("PK__Batterys__31C8DB8E380A0FF1");
 
             entity.Property(e => e.BatteryId).HasColumnName("battery_id");
             entity.Property(e => e.BatteryType)
@@ -105,7 +105,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<BatteryMetaData>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Battery___3213E83FB56DCF57");
+            entity.HasKey(e => e.Id).HasName("PK__Battery___3213E83F4DB175D2");
 
             entity.ToTable("Battery_metaDatas");
 
@@ -126,7 +126,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D54EE9B4AD7D1161");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D54EE9B4A8884537");
 
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
             entity.Property(e => e.CategoryName)
@@ -141,7 +141,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<ConsumerProfile>(entity =>
         {
-            entity.HasKey(e => e.ConsumerId).HasName("PK__Consumer__A6D5902D24B8B60E");
+            entity.HasKey(e => e.ConsumerId).HasName("PK__Consumer__A6D5902D7A62AA9F");
 
             entity.Property(e => e.ConsumerId)
                 .ValueGeneratedNever()
@@ -162,7 +162,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<DataPackage>(entity =>
         {
-            entity.HasKey(e => e.PackageId).HasName("PK__Datapack__63846AE8FEA243C5");
+            entity.HasKey(e => e.PackageId).HasName("PK__DataPack__63846AE8430FC33F");
 
             entity.Property(e => e.PackageId).HasColumnName("package_id");
             entity.Property(e => e.Description).HasColumnName("description");
@@ -177,7 +177,7 @@ public partial class EvMarketContext : DbContext
             entity.Property(e => e.ReleaseDate).HasColumnName("release_date");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .HasDefaultValue("active")
+                .HasDefaultValue("Pending")
                 .HasColumnName("status");
             entity.Property(e => e.SubcategoryId).HasColumnName("subcategory_id");
             entity.Property(e => e.UserId).HasColumnName("userID");
@@ -185,23 +185,23 @@ public partial class EvMarketContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("version");
 
-            entity.HasOne(d => d.Metadata).WithMany(p => p.Datapackages)
+            entity.HasOne(d => d.Metadata).WithMany(p => p.DataPackages)
                 .HasForeignKey(d => d.MetadataId)
-                .HasConstraintName("FK__Datapacka__metad__5CD6CB2B");
+                .HasConstraintName("FK__DataPacka__metad__5CD6CB2B");
 
-            entity.HasOne(d => d.Subcategory).WithMany(p => p.Datapackages)
+            entity.HasOne(d => d.Subcategory).WithMany(p => p.DataPackages)
                 .HasForeignKey(d => d.SubcategoryId)
-                .HasConstraintName("FK__Datapacka__subca__5BE2A6F2");
+                .HasConstraintName("FK__DataPacka__subca__5BE2A6F2");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Datapackages)
+            entity.HasOne(d => d.User).WithMany(p => p.DataPackages)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Datapacka__userI__5AEE82B9");
+                .HasConstraintName("FK__DataPacka__userI__5AEE82B9");
         });
 
         modelBuilder.Entity<Download>(entity =>
         {
-            entity.HasKey(e => e.DownloadId).HasName("PK__Download__2EDDE1CD52F4E05E");
+            entity.HasKey(e => e.DownloadId).HasName("PK__Download__2EDDE1CD32420806");
 
             entity.Property(e => e.DownloadId).HasColumnName("download_id");
             entity.Property(e => e.DownloadDate)
@@ -234,7 +234,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8C6D516C01");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8C6C0148F0");
 
             entity.Property(e => e.FeedbackId).HasColumnName("feedback_id");
             entity.Property(e => e.Comment).HasColumnName("comment");
@@ -266,9 +266,9 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Invoice>(entity =>
         {
-            entity.HasKey(e => e.InvoiceId).HasName("PK__Invoices__F58DFD499F145BE0");
+            entity.HasKey(e => e.InvoiceId).HasName("PK__Invoices__F58DFD49EFC96BF4");
 
-            entity.HasIndex(e => e.InvoiceNumber, "UQ__Invoices__8081A63A3D92B513").IsUnique();
+            entity.HasIndex(e => e.InvoiceNumber, "UQ__Invoices__8081A63A71590BA6").IsUnique();
 
             entity.Property(e => e.InvoiceId).HasColumnName("invoice_id");
             entity.Property(e => e.Currency)
@@ -301,7 +301,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<MetaData>(entity =>
         {
-            entity.HasKey(e => e.MetadataId).HasName("PK__MetaData__C1088FC4371DD347");
+            entity.HasKey(e => e.MetadataId).HasName("PK__MetaData__C1088FC40E9A8156");
 
             entity.Property(e => e.MetadataId).HasColumnName("metadata_id");
             entity.Property(e => e.CreatedAt)
@@ -317,11 +317,14 @@ public partial class EvMarketContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(200)
                 .HasColumnName("title");
+            entity.Property(e => e.Type)
+                .HasMaxLength(200)
+                .HasColumnName("type");
         });
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842FF4738129");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842F34A50752");
 
             entity.Property(e => e.NotificationId).HasColumnName("notification_id");
             entity.Property(e => e.Message).HasColumnName("message");
@@ -346,7 +349,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<PaymentMethod>(entity =>
         {
-            entity.HasKey(e => e.MethodId).HasName("PK__PaymentM__747727B621EE5B85");
+            entity.HasKey(e => e.MethodId).HasName("PK__PaymentM__747727B630910F8B");
 
             entity.ToTable("PaymentMethod");
 
@@ -376,7 +379,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<PricingPlan>(entity =>
         {
-            entity.HasKey(e => e.PlanId).HasName("PK__PricingP__BE9F8F1D656AD993");
+            entity.HasKey(e => e.PlanId).HasName("PK__PricingP__BE9F8F1DCF6FDBDF");
 
             entity.Property(e => e.PlanId).HasColumnName("plan_id");
             entity.Property(e => e.AccessType)
@@ -408,7 +411,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<ProviderProfile>(entity =>
         {
-            entity.HasKey(e => e.ProviderId).HasName("PK__Provider__00E213104B36A38A");
+            entity.HasKey(e => e.ProviderId).HasName("PK__Provider__00E21310CBAC232D");
 
             entity.Property(e => e.ProviderId)
                 .ValueGeneratedNever()
@@ -439,7 +442,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Region>(entity =>
         {
-            entity.HasKey(e => e.RegionId).HasName("PK__Regions__01146BAEE375987F");
+            entity.HasKey(e => e.RegionId).HasName("PK__Regions__01146BAEE585BF73");
 
             entity.Property(e => e.RegionId).HasColumnName("region_id");
             entity.Property(e => e.City)
@@ -458,7 +461,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<RegionMetaData>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Region_m__3213E83F3C4D2A58");
+            entity.HasKey(e => e.Id).HasName("PK__Region_m__3213E83F9A3380B8");
 
             entity.ToTable("Region_metaDatas");
 
@@ -479,7 +482,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<RevenueShare>(entity =>
         {
-            entity.HasKey(e => e.RevenueId).HasName("PK__RevenueS__3DF902E9F062C2D3");
+            entity.HasKey(e => e.RevenueId).HasName("PK__RevenueS__3DF902E9AE1EEAA4");
 
             entity.Property(e => e.RevenueId).HasColumnName("revenue_id");
             entity.Property(e => e.Amount)
@@ -509,7 +512,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__760965CCC3F152EC");
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__760965CC9E06412C");
 
             entity.Property(e => e.RoleId).HasColumnName("role_id");
             entity.Property(e => e.RoleName)
@@ -519,7 +522,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<SubCategory>(entity =>
         {
-            entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__F7A5CC26CD968344");
+            entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__F7A5CC26E77320E6");
 
             entity.Property(e => e.SubcategoryId).HasColumnName("subcategory_id");
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
@@ -539,7 +542,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Transaction>(entity =>
         {
-            entity.HasKey(e => e.TransactionId).HasName("PK__Transact__85C600AFF66433DC");
+            entity.HasKey(e => e.TransactionId).HasName("PK__Transact__85C600AFA39348CC");
 
             entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
             entity.Property(e => e.Amount)
@@ -566,11 +569,11 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__CB9A1CDFD0717570");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__CB9A1CDF7E1769F6");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__AB6E6164C73E2505").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__AB6E61642CC25CD3").IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ__Users__F3DBC57248996B18").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Users__F3DBC572D79589E2").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("userID");
             entity.Property(e => e.CreatedAt)
@@ -595,7 +598,7 @@ public partial class EvMarketContext : DbContext
             entity.Property(e => e.RoleId).HasColumnName("role_id");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .HasDefaultValue("active")
+                .HasDefaultValue("Active")
                 .HasColumnName("status");
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -613,7 +616,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Vehicle>(entity =>
         {
-            entity.HasKey(e => e.VehicleId).HasName("PK__Vehicles__F2947BC173D43DC0");
+            entity.HasKey(e => e.VehicleId).HasName("PK__Vehicles__F2947BC144E642E4");
 
             entity.Property(e => e.VehicleId).HasColumnName("vehicle_id");
             entity.Property(e => e.Brand)
@@ -631,7 +634,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<VehicleMetaData>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vehicle___3213E83F38565A4D");
+            entity.HasKey(e => e.Id).HasName("PK__Vehicle___3213E83FA5723F34");
 
             entity.ToTable("Vehicle_metaDatas");
 

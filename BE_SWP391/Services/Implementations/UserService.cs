@@ -39,7 +39,7 @@ namespace BE_SWP391.Services.Implementations
                 name = user.FullName ?? string.Empty,
                 email = user.Email,
                 roleName = user.Role != null ? user.Role.RoleName : "N/A",
-                dataSet = user.Datapackages != null ? user.Datapackages.Count : 0,
+                dataSet = user.DataPackages != null ? user.DataPackages.Count : 0,
                 status = user.Status
             });
             return userInforResponses;

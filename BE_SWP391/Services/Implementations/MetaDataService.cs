@@ -29,6 +29,7 @@ namespace BE_SWP391.Services.Implementations
         {
             var metadata = new MetaData
             {
+                Type = request.Type,
                 Title = request.Title,
                 Description = request.Description,
                 Keywords = request.Keywords,
@@ -44,6 +45,7 @@ namespace BE_SWP391.Services.Implementations
         {
             var metadata = _metaDataRepository.GetById(id);
             if (metadata == null) return null;
+            metadata.Title = request.Title;
             metadata.Title = request.Title;
             metadata.Description = request.Description;
             metadata.Keywords = request.Keywords;
@@ -64,6 +66,7 @@ namespace BE_SWP391.Services.Implementations
             return new MetaDataResponse
             {
                 MetadataId = metadata.MetadataId,
+                Type = metadata.Type,
                 Title = metadata.Title,
                 Description = metadata.Description,
                 Keywords = metadata.Keywords,

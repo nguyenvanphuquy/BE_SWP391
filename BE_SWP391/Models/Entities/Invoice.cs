@@ -1,8 +1,7 @@
-﻿using BE_SWP391.Models.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace BE_SWP391.Models;
+namespace BE_SWP391.Models.Entities;
 
 public partial class Invoice
 {
