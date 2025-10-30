@@ -2,8 +2,8 @@
 {
     public class TopPackageResponse
     {
-            
-        public string PackageName { get; set; }
+        public string DataPackageName { get; set; }
+        public string Type { get; set; }
         public int TotalDownloads { get; set; }
         public string ProviderName { get; set; }
         public string CategoryName { get; set; }

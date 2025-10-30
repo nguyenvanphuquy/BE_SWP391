@@ -1,6 +1,7 @@
 ﻿using BE_SWP391.Data;
 using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Repositories.Interfaces;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.Intrinsics.Arm;
 
@@ -45,23 +46,26 @@ namespace BE_SWP391.Repositories.Implementations
             var lastMonth = DateTime.Now.AddMonths(-1).Month;
 
             var data = (from dp in _marketContext.DataPackages
+                        join md in _marketContext.MetaDatas on dp.MetadataId equals md.MetadataId
                         join d in _marketContext.Downloads on dp.PackageId equals d.PackageId
                         join u in _marketContext.Users on dp.UserId equals u.UserId
                         join sc in _marketContext.SubCategorys on dp.SubcategoryId equals sc.SubcategoryId
                         join cat in _marketContext.Categorys on sc.CategoryId equals cat.CategoryId
-                        group new { dp, d, u, cat } by new
+                        group new { dp,md, d, u, cat } by new
                         {
                             dp.PackageId,
                             dp.PackageName,
+                            md.Type,
                             u.FullName,
                             cat.CategoryName
                         } into g
                         orderby g.Count() descending
                         select new TopPackageResponse
                         {
-                            PackageName = g.Key.PackageName,
+                            DataPackageName = g.Key.PackageName,
+                            Type = g.Key.Type,
                             TotalDownloads = g.Count(),
-                            ProviderName = g.Key.FullName,
+                             ProviderName = g.Key.FullName,
                             CategoryName = g.Key.CategoryName,
                         })
                         .Take(top)
@@ -97,11 +101,11 @@ namespace BE_SWP391.Repositories.Implementations
         }
         public List<CategoryAnalyticsResponse> GetCategoryAnalytics()
         {
+            
             var data = (from cat in _marketContext.Categorys
                         select new CategoryAnalyticsResponse
                         {
                             CategoryName = cat.CategoryName,
-
                             TotalPackages = _marketContext.DataPackages
                                 .Where(dp => dp.Subcategory.CategoryId == cat.CategoryId)
                                 .Count(),
