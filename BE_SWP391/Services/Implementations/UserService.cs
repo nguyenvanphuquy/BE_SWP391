@@ -137,6 +137,7 @@ namespace BE_SWP391.Services.Implementations
                 Token = token,
                 RefreshToken = "",
                 Expires = DateTime.UtcNow.AddHours(1),
+                UserId = user.UserId,
                 Username = user.Username,
                 Email = user.Email,
                 RoleId = user.RoleId,

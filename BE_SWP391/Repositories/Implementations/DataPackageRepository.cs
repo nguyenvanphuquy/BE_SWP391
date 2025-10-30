@@ -98,6 +98,7 @@ namespace BE_SWP391.Repositories.Implementations
                         join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
                         select new AllPackageResponse
                         {
+                            PrincingPlanId = pp.PlanId,
                             PackageName = dp.PackageName,
                             ProviderName = u.FullName,
                             Type = mt.Type,
@@ -106,7 +107,13 @@ namespace BE_SWP391.Repositories.Implementations
                                          where fb.PackageId == dp.PackageId
                                          select (double?)fb.Rating).Average() ?? 0, 1),
                             DownloadCount = _context.Downloads.Count(i => i.PackageId == dp.PackageId),
+                            CartCount = _context.Carts.Count(c => c.PlanId == pp.PlanId),
                             CreateAt = dp.ReleaseDate,
+                            UpdateAt =dp.LastUpdate,
+                            Description = dp.Description,
+                            FileFormat = mt.FileFormat,
+                            FileSize = mt.FileSize,
+                            Version = dp.Version,
                             PricingPlan = pp.Price,
                         })
                         .OrderByDescending(i => i.DownloadCount)

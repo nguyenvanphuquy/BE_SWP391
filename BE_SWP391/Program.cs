@@ -107,8 +107,8 @@ builder.Services.AddSingleton<JwtSettings>(builder.Configuration.GetSection("Jwt
 builder.Services.AddScoped<JwtTokenGenerator>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
-
-
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 
 
