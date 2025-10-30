@@ -29,6 +29,8 @@ public partial class User
 
     public virtual AdminProfile? AdminProfile { get; set; }
 
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
     public virtual ConsumerProfile? ConsumerProfile { get; set; }
 
     public virtual ICollection<DataPackage> DataPackages { get; set; } = new List<DataPackage>();

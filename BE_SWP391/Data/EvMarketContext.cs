@@ -22,6 +22,8 @@ public partial class EvMarketContext : DbContext
 
     public virtual DbSet<BatteryMetaData> BatteryMetaDatas { get; set; }
 
+    public virtual DbSet<Cart> Carts { get; set; }
+
     public virtual DbSet<Category> Categorys { get; set; }
 
     public virtual DbSet<ConsumerProfile> ConsumerProfiles { get; set; }
@@ -70,7 +72,7 @@ public partial class EvMarketContext : DbContext
     {
         modelBuilder.Entity<AdminProfile>(entity =>
         {
-            entity.HasKey(e => e.AdminId).HasName("PK__AdminPro__43AA41410EEC3C26");
+            entity.HasKey(e => e.AdminId).HasName("PK__AdminPro__43AA414168EA443A");
 
             entity.Property(e => e.AdminId)
                 .ValueGeneratedNever()
@@ -85,7 +87,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Battery>(entity =>
         {
-            entity.HasKey(e => e.BatteryId).HasName("PK__Batterys__31C8DB8E380A0FF1");
+            entity.HasKey(e => e.BatteryId).HasName("PK__Batterys__31C8DB8EBFBD3B70");
 
             entity.Property(e => e.BatteryId).HasColumnName("battery_id");
             entity.Property(e => e.BatteryType)
@@ -105,7 +107,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<BatteryMetaData>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Battery___3213E83F4DB175D2");
+            entity.HasKey(e => e.Id).HasName("PK__Battery___3213E83F703C0E88");
 
             entity.ToTable("Battery_metaDatas");
 
@@ -124,9 +126,45 @@ public partial class EvMarketContext : DbContext
                 .HasConstraintName("FK__Battery_m__metad__74AE54BC");
         });
 
+        modelBuilder.Entity<Cart>(entity =>
+        {
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__2EF52A276B281F39");
+
+            entity.ToTable("Cart");
+
+            entity.Property(e => e.CartId).HasColumnName("cart_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.PlanId).HasColumnName("plan_id");
+            entity.Property(e => e.Quantity)
+                .HasDefaultValue(1)
+                .HasColumnName("quantity");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending")
+                .HasColumnName("status");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UserId).HasColumnName("userID");
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.Carts)
+                .HasForeignKey(d => d.PlanId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Cart__plan_id__25518C17");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Carts)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Cart__userID__245D67DE");
+        });
+
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D54EE9B4A8884537");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__D54EE9B45265BA89");
 
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
             entity.Property(e => e.CategoryName)
@@ -141,7 +179,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<ConsumerProfile>(entity =>
         {
-            entity.HasKey(e => e.ConsumerId).HasName("PK__Consumer__A6D5902D7A62AA9F");
+            entity.HasKey(e => e.ConsumerId).HasName("PK__Consumer__A6D5902D09620624");
 
             entity.Property(e => e.ConsumerId)
                 .ValueGeneratedNever()
@@ -162,7 +200,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<DataPackage>(entity =>
         {
-            entity.HasKey(e => e.PackageId).HasName("PK__DataPack__63846AE8430FC33F");
+            entity.HasKey(e => e.PackageId).HasName("PK__DataPack__63846AE832D5DB25");
 
             entity.Property(e => e.PackageId).HasColumnName("package_id");
             entity.Property(e => e.Description).HasColumnName("description");
@@ -201,7 +239,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Download>(entity =>
         {
-            entity.HasKey(e => e.DownloadId).HasName("PK__Download__2EDDE1CD32420806");
+            entity.HasKey(e => e.DownloadId).HasName("PK__Download__2EDDE1CDE204BDF7");
 
             entity.Property(e => e.DownloadId).HasColumnName("download_id");
             entity.Property(e => e.DownloadDate)
@@ -224,17 +262,17 @@ public partial class EvMarketContext : DbContext
             entity.HasOne(d => d.Package).WithMany(p => p.Downloads)
                 .HasForeignKey(d => d.PackageId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Downloads__packa__114A936A");
+                .HasConstraintName("FK__Downloads__packa__17F790F9");
 
             entity.HasOne(d => d.Transaction).WithMany(p => p.Downloads)
                 .HasForeignKey(d => d.TransactionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Downloads__trans__10566F31");
+                .HasConstraintName("FK__Downloads__trans__17036CC0");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8C6C0148F0");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8C2D1A16F5");
 
             entity.Property(e => e.FeedbackId).HasColumnName("feedback_id");
             entity.Property(e => e.Comment).HasColumnName("comment");
@@ -266,9 +304,9 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Invoice>(entity =>
         {
-            entity.HasKey(e => e.InvoiceId).HasName("PK__Invoices__F58DFD49EFC96BF4");
+            entity.HasKey(e => e.InvoiceId).HasName("PK__Invoices__F58DFD49E2FEAB10");
 
-            entity.HasIndex(e => e.InvoiceNumber, "UQ__Invoices__8081A63A71590BA6").IsUnique();
+            entity.HasIndex(e => e.InvoiceNumber, "UQ__Invoices__8081A63ADA8D0B21").IsUnique();
 
             entity.Property(e => e.InvoiceId).HasColumnName("invoice_id");
             entity.Property(e => e.Currency)
@@ -301,7 +339,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<MetaData>(entity =>
         {
-            entity.HasKey(e => e.MetadataId).HasName("PK__MetaData__C1088FC40E9A8156");
+            entity.HasKey(e => e.MetadataId).HasName("PK__MetaData__C1088FC42CA34C62");
 
             entity.Property(e => e.MetadataId).HasColumnName("metadata_id");
             entity.Property(e => e.CreatedAt)
@@ -324,7 +362,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842F34A50752");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842FAD6A15D3");
 
             entity.Property(e => e.NotificationId).HasColumnName("notification_id");
             entity.Property(e => e.Message).HasColumnName("message");
@@ -349,7 +387,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<PaymentMethod>(entity =>
         {
-            entity.HasKey(e => e.MethodId).HasName("PK__PaymentM__747727B630910F8B");
+            entity.HasKey(e => e.MethodId).HasName("PK__PaymentM__747727B6218640D9");
 
             entity.ToTable("PaymentMethod");
 
@@ -374,12 +412,12 @@ public partial class EvMarketContext : DbContext
             entity.HasOne(d => d.Transaction).WithMany(p => p.PaymentMethods)
                 .HasForeignKey(d => d.TransactionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PaymentMe__trans__160F4887");
+                .HasConstraintName("FK__PaymentMe__trans__1CBC4616");
         });
 
         modelBuilder.Entity<PricingPlan>(entity =>
         {
-            entity.HasKey(e => e.PlanId).HasName("PK__PricingP__BE9F8F1DCF6FDBDF");
+            entity.HasKey(e => e.PlanId).HasName("PK__PricingP__BE9F8F1D9254187A");
 
             entity.Property(e => e.PlanId).HasColumnName("plan_id");
             entity.Property(e => e.AccessType)
@@ -402,16 +440,22 @@ public partial class EvMarketContext : DbContext
             entity.Property(e => e.Price)
                 .HasColumnType("decimal(12, 2)")
                 .HasColumnName("price");
+            entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
 
             entity.HasOne(d => d.Package).WithMany(p => p.PricingPlans)
                 .HasForeignKey(d => d.PackageId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PricingPl__packa__7A672E12");
+                .HasConstraintName("FK__PricingPl__packa__0C85DE4D");
+
+            entity.HasOne(d => d.Transaction).WithMany(p => p.PricingPlans)
+                .HasForeignKey(d => d.TransactionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PricingPl__trans__0D7A0286");
         });
 
         modelBuilder.Entity<ProviderProfile>(entity =>
         {
-            entity.HasKey(e => e.ProviderId).HasName("PK__Provider__00E21310CBAC232D");
+            entity.HasKey(e => e.ProviderId).HasName("PK__Provider__00E21310AE123AD5");
 
             entity.Property(e => e.ProviderId)
                 .ValueGeneratedNever()
@@ -442,7 +486,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Region>(entity =>
         {
-            entity.HasKey(e => e.RegionId).HasName("PK__Regions__01146BAEE585BF73");
+            entity.HasKey(e => e.RegionId).HasName("PK__Regions__01146BAE92911560");
 
             entity.Property(e => e.RegionId).HasColumnName("region_id");
             entity.Property(e => e.City)
@@ -461,7 +505,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<RegionMetaData>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Region_m__3213E83F9A3380B8");
+            entity.HasKey(e => e.Id).HasName("PK__Region_m__3213E83FD332CCB3");
 
             entity.ToTable("Region_metaDatas");
 
@@ -482,7 +526,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<RevenueShare>(entity =>
         {
-            entity.HasKey(e => e.RevenueId).HasName("PK__RevenueS__3DF902E9AE1EEAA4");
+            entity.HasKey(e => e.RevenueId).HasName("PK__RevenueS__3DF902E9422FEAF8");
 
             entity.Property(e => e.RevenueId).HasColumnName("revenue_id");
             entity.Property(e => e.Amount)
@@ -502,17 +546,17 @@ public partial class EvMarketContext : DbContext
             entity.HasOne(d => d.Transaction).WithMany(p => p.RevenueShares)
                 .HasForeignKey(d => d.TransactionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__RevenueSh__trans__0B91BA14");
+                .HasConstraintName("FK__RevenueSh__trans__123EB7A3");
 
             entity.HasOne(d => d.User).WithMany(p => p.RevenueShares)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__RevenueSh__userI__0A9D95DB");
+                .HasConstraintName("FK__RevenueSh__userI__114A936A");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__760965CC9E06412C");
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__760965CC97E8E8FF");
 
             entity.Property(e => e.RoleId).HasColumnName("role_id");
             entity.Property(e => e.RoleName)
@@ -522,7 +566,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<SubCategory>(entity =>
         {
-            entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__F7A5CC26E77320E6");
+            entity.HasKey(e => e.SubcategoryId).HasName("PK__SubCateg__F7A5CC26091E10B5");
 
             entity.Property(e => e.SubcategoryId).HasColumnName("subcategory_id");
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
@@ -542,7 +586,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Transaction>(entity =>
         {
-            entity.HasKey(e => e.TransactionId).HasName("PK__Transact__85C600AFA39348CC");
+            entity.HasKey(e => e.TransactionId).HasName("PK__Transact__85C600AF06D1797C");
 
             entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
             entity.Property(e => e.Amount)
@@ -564,16 +608,17 @@ public partial class EvMarketContext : DbContext
 
             entity.HasOne(d => d.Invoice).WithMany(p => p.Transactions)
                 .HasForeignKey(d => d.InvoiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Transacti__invoi__06CD04F7");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__CB9A1CDF7E1769F6");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__CB9A1CDFED0BBA51");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__AB6E61642CC25CD3").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__AB6E6164F6D419AA").IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ__Users__F3DBC572D79589E2").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Users__F3DBC5720E35A034").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("userID");
             entity.Property(e => e.CreatedAt)
@@ -616,7 +661,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<Vehicle>(entity =>
         {
-            entity.HasKey(e => e.VehicleId).HasName("PK__Vehicles__F2947BC144E642E4");
+            entity.HasKey(e => e.VehicleId).HasName("PK__Vehicles__F2947BC1442E977E");
 
             entity.Property(e => e.VehicleId).HasColumnName("vehicle_id");
             entity.Property(e => e.Brand)
@@ -634,7 +679,7 @@ public partial class EvMarketContext : DbContext
 
         modelBuilder.Entity<VehicleMetaData>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vehicle___3213E83FA5723F34");
+            entity.HasKey(e => e.Id).HasName("PK__Vehicle___3213E83F3C9DD040");
 
             entity.ToTable("Vehicle_metaDatas");
 

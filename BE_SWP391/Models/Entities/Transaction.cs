@@ -15,13 +15,15 @@ public partial class Transaction
 
     public string? Currency { get; set; }
 
-    public int? InvoiceId { get; set; }
+    public int InvoiceId { get; set; }
 
     public virtual ICollection<Download> Downloads { get; set; } = new List<Download>();
 
-    public virtual Invoice? Invoice { get; set; }
+    public virtual Invoice Invoice { get; set; } = null!;
 
     public virtual ICollection<PaymentMethod> PaymentMethods { get; set; } = new List<PaymentMethod>();
+
+    public virtual ICollection<PricingPlan> PricingPlans { get; set; } = new List<PricingPlan>();
 
     public virtual ICollection<RevenueShare> RevenueShares { get; set; } = new List<RevenueShare>();
 }

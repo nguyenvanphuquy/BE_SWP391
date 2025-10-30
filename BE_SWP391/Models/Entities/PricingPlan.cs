@@ -21,5 +21,11 @@ public partial class PricingPlan
 
     public decimal? Discount { get; set; }
 
+    public int TransactionId { get; set; }
+
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
     public virtual DataPackage Package { get; set; } = null!;
+
+    public virtual Transaction Transaction { get; set; } = null!;
 }

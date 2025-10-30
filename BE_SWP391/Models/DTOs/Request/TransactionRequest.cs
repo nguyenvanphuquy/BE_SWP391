@@ -10,6 +10,6 @@
 
         public string? Currency { get; set; }
 
-        public int? InvoiceId { get; set; }
+        public int InvoiceId { get; set; }
     }
 }
