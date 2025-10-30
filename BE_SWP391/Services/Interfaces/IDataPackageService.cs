@@ -14,7 +14,7 @@ namespace BE_SWP391.Services.Interfaces
         List<DataForAdminResponse> GetDataForAdmin();
         bool ChageStatus(int PackedId, ChageStatusRequest request   );
         List<DataPendingRepsonse> GetPendingData();
-
+        List<AllPackageResponse> GetAllPackages();
 
     }
 }

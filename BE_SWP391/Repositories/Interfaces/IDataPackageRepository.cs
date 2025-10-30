@@ -18,5 +18,6 @@ namespace BE_SWP391.Repositories.Interfaces
         void ChageStatus(DataPackage dataPackage);
 
         List<DataPendingRepsonse> GetDataPending();
+        List<AllPackageResponse> GetAllPackage();
     }
 }

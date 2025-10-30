@@ -89,5 +89,29 @@ namespace BE_SWP391.Repositories.Implementations
             return result;
             
         }
+        public List<AllPackageResponse> GetAllPackage()
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var data = (from dp in _context.DataPackages 
+                        join u in _context.Users on dp.UserId equals u.UserId
+                        join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
+                        join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
+                        select new AllPackageResponse
+                        {
+                            PackageName = dp.PackageName,
+                            ProviderName = u.FullName,
+                            Type = mt.Type,
+                            Rating = Math.Round(
+                                        (from fb in _context.Feedbacks
+                                         where fb.PackageId == dp.PackageId
+                                         select (double?)fb.Rating).Average() ?? 0, 1),
+                            DownloadCount = _context.Downloads.Count(i => i.PackageId == dp.PackageId),
+                            CreateAt = dp.ReleaseDate,
+                            PricingPlan = pp.Price,
+                        })
+                        .OrderByDescending(i => i.DownloadCount)
+                        .ToList();
+            return data;
+        }
     }
 }

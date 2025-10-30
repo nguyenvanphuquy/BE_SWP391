@@ -123,6 +123,10 @@ namespace BE_SWP391.Services.Implementations
         {
             return _dataPackageRepository.GetDataPending();
         }
+        public List<AllPackageResponse> GetAllPackages()
+        {
+            return _dataPackageRepository.GetAllPackage();
+        }
 
     }
 }

@@ -104,5 +104,10 @@ namespace BE_SWP391.Controllers
             var data = _dataPackageService.GetPendingData();
             return Ok(data);
         }
+        [HttpGet("AllPackage")]
+        public IActionResult GetAllPackage()
+        {
+            return Ok(_dataPackageService.GetAllPackages());
+        }
     }
 }
