@@ -34,6 +34,10 @@ namespace BE_SWP391.Repositories.Implementations
             _context.SubCategorys.Remove(subCategory);
             _context.SaveChanges();
         }
+        public SubCategory GetByName(string name)
+        {
+            return _context.SubCategorys.FirstOrDefault(x => x.SubcategoryName == name);
+        }
 
 
     }

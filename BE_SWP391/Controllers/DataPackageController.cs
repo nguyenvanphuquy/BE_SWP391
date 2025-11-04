@@ -56,12 +56,15 @@ namespace BE_SWP391.Controllers
         public IActionResult Create([FromBody] DataPackageRequest request)
         {
 
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                _dataPackageService.Create(request);
+                return Ok(new { message = "Đăng ký bộ dữ liệu thành công!" });
             }
-            var dataPackage = _dataPackageService.Create(request);
-            return CreatedAtAction(nameof(GetById), new { id = dataPackage.PackageId }, dataPackage);
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] DataPackageRequest request)

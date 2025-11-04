@@ -4,15 +4,21 @@ using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Implementations;
 using BE_SWP391.Repositories.Interfaces;
 using BE_SWP391.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using BE_SWP391.Data;
 namespace BE_SWP391.Services.Implementations
 {
     public class DataPackageService : IDataPackageService
     {
         private readonly IDataPackageRepository _dataPackageRepository;
+        private readonly EvMarketContext _context;
+        private readonly ISubCategoryRepository _subCategoryRepository;
 
-        public DataPackageService(IDataPackageRepository dataPackageRepository)
+        public DataPackageService(IDataPackageRepository dataPackageRepository, EvMarketContext context, ISubCategoryRepository subCategoryRepository)
         {
             _dataPackageRepository = dataPackageRepository;
+            _context = context;
+            _subCategoryRepository = subCategoryRepository;
         }
         public DataPackageResponse? GetById(int id)
         {
@@ -25,20 +31,43 @@ namespace BE_SWP391.Services.Implementations
         }
         public DataPackageResponse? Create(DataPackageRequest request)
         {
-            var dataPackage = new DataPackage
+            // 1. Tìm SubCategory theo tên
+            var sub = _subCategoryRepository.GetByName(request.SubCategoryName);
+            if (sub == null)
+            {
+                throw new Exception($"Không tìm thấy SubCategory với tên: {request.SubCategoryName}");
+            }
+
+            // 2. Lưu MetaData
+            var meta = new MetaData
+            {
+                Type = request.MetaData.Type,
+                Title = request.MetaData.Title,
+                Description = request.MetaData.Description,
+                Keywords = request.MetaData.Keywords,
+                FileFormat = request.MetaData.FileFormat,
+                FileSize = request.MetaData.FileSize,
+                CreatedAt = DateTime.Now
+            };
+            _context.MetaDatas.Add(meta);
+            _context.SaveChanges();
+
+            // 3. Tạo DataPackage
+            var data = new DataPackage
             {
                 PackageName = request.PackageName,
                 Description = request.Description,
                 Version = request.Version,
                 ReleaseDate = request.ReleaseDate,
-                LastUpdate = DateTime.Now,
-                Status = request.Status,
+                SubcategoryId = sub.SubcategoryId,   
                 UserId = request.UserId,
-                SubcategoryId = request.SubcategoryId,
-                MetadataId = request.MetadataId
+                MetadataId = meta.MetadataId,
+                LastUpdate = DateTime.Now,
+                Status = "Pending"
             };
-            _dataPackageRepository.Create(dataPackage);
-            return ToResponse(dataPackage);
+            _dataPackageRepository.Create(data);
+            _context.SaveChanges();
+            return ToResponse(data);
         }
         public DataPackageResponse? Update(int id, DataPackageRequest request)
         {
@@ -54,8 +83,8 @@ namespace BE_SWP391.Services.Implementations
             dataPackage.LastUpdate = DateTime.Now;
             dataPackage.Status = request.Status;
             dataPackage.UserId = request.UserId;
-            dataPackage.SubcategoryId = request.SubcategoryId;
-            dataPackage.MetadataId = request.MetadataId;
+            //dataPackage.SubcategoryId = request.SubcategoryId;
+            //dataPackage.MetadataId = request.MetadataId;
             _dataPackageRepository.Update(dataPackage);
             return ToResponse(dataPackage);
         }

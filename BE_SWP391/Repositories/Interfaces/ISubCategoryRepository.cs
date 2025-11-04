@@ -9,5 +9,6 @@ namespace BE_SWP391.Repositories.Interfaces
         void Create(SubCategory subCategory);
         void Update(SubCategory subCategory);
         void Delete(SubCategory subCategory);
+        SubCategory GetByName(string name);
     }
 }

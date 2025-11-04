@@ -9,8 +9,8 @@
         public DateTime? LastUpdate { get; set; }
         public string? Status { get; set; }
         public int UserId { get; set; }
-        public int? SubcategoryId { get; set; }
-        public int? MetadataId { get; set; }
+        public string SubCategoryName { get; set; }
+        public MetaDataRequest MetaData { get; set; }
 
     }
 }
