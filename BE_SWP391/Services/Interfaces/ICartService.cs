@@ -6,5 +6,6 @@ namespace BE_SWP391.Services.Interfaces
     public interface ICartService
     {
         AddToCartResponse AddToCart(AddToCartRequest request);
+        List<CartResponse> GetList(int userId);
     }
 }

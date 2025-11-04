@@ -16,5 +16,9 @@ namespace BE_SWP391.Services.Implementations
         {
             return _repository.AddToCart(request);
         }
+        public List<CartResponse> GetList(int userId)
+        {
+            return _repository.GetList(userId);
+        }
     }
 }

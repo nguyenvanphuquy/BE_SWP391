@@ -109,5 +109,23 @@ namespace BE_SWP391.Controllers
         {
             return Ok(_dataPackageService.GetAllPackages());
         }
+        [HttpGet("dashboard/{userId}")]
+        public IActionResult GetDashboardStatsByUser(int userId)
+        {
+            var result = _dataPackageService.GetUserDataStats(userId);
+            return Ok(result);
+        }
+        [HttpGet("user/{userId}")]
+        public ActionResult<List<UserDataResponse>> GetUserData(int userId)
+        {
+            var result = _dataPackageService.GetUserDataByUserId(userId);
+
+            if (result == null || result.Count == 0)
+            {
+                return NotFound(new { message = "Không tìm thấy dữ liệu cho user này." });
+            }
+
+            return Ok(result);
+        }
     }
 }

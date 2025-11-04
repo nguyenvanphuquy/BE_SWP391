@@ -127,6 +127,13 @@ namespace BE_SWP391.Services.Implementations
         {
             return _dataPackageRepository.GetAllPackage();
         }
-
+        public UserDataStatsResponse GetUserDataStats(int userId)
+        {
+            return _dataPackageRepository.GetUserDataStats(userId);
+        }
+        public List<UserDataResponse> GetUserDataByUserId(int userId)
+        {
+            return _dataPackageRepository.GetUserDataByUserId(userId);
+        }
     }
 }

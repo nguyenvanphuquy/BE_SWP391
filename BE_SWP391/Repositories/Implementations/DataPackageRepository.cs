@@ -9,7 +9,7 @@ namespace BE_SWP391.Repositories.Implementations
 {
     public class DataPackageRepository : IDataPackageRepository
     {
-        private readonly  EvMarketContext _context;
+        private readonly EvMarketContext _context;
         public DataPackageRepository(EvMarketContext context)
         {
             _context = context;
@@ -87,12 +87,12 @@ namespace BE_SWP391.Repositories.Implementations
                           })
                           .ToList();
             return result;
-            
+
         }
         public List<AllPackageResponse> GetAllPackage()
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
-            var data = (from dp in _context.DataPackages 
+            var data = (from dp in _context.DataPackages
                         join u in _context.Users on dp.UserId equals u.UserId
                         join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
                         join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
@@ -109,7 +109,7 @@ namespace BE_SWP391.Repositories.Implementations
                             DownloadCount = _context.Downloads.Count(i => i.PackageId == dp.PackageId),
                             CartCount = _context.Carts.Count(c => c.PlanId == pp.PlanId),
                             CreateAt = dp.ReleaseDate,
-                            UpdateAt =dp.LastUpdate,
+                            UpdateAt = dp.LastUpdate,
                             Description = dp.Description,
                             FileFormat = mt.FileFormat,
                             FileSize = mt.FileSize,
@@ -118,6 +118,39 @@ namespace BE_SWP391.Repositories.Implementations
                         })
                         .OrderByDescending(i => i.DownloadCount)
                         .ToList();
+            return data;
+        }
+        public UserDataStatsResponse GetUserDataStats(int userId)
+        {
+            var query = _context.DataPackages.Where(dp => dp.UserId == userId);
+            var totalData = query.Count();
+            var active = query.Count(dp => dp.Status == "Active");
+            var approved = query.Count(dp => dp.Status == "Approved");
+            var pending = query.Count(dp => dp.Status == "Pending");
+            return new UserDataStatsResponse
+            {
+                TotalData = totalData,
+                ActiveData = active,
+                ApprovedData = approved,
+                PendingData = pending,
+            };
+        }
+        public List<UserDataResponse> GetUserDataByUserId(int userId)
+        {
+            var data = (from dp in _context.DataPackages
+                        join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
+                        //from plan in planGroup.DefaultIfEmpty()
+                        where dp.UserId == userId
+                        select new UserDataResponse
+                        {
+                            PackageName = dp.PackageName,
+                            Description = dp.Description,
+                            FileSize = mt.FileSize,
+                            status = dp.Status,
+                            DownloadCount = _context.Downloads.Count(i => i.PackageId == dp.PackageId),
+                            RevenueCount = _context.RevenueShares.Sum(j => j.Amount)
+                        }
+                        ).ToList();
             return data;
         }
     }

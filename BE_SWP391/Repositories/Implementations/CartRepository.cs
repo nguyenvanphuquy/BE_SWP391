@@ -52,5 +52,66 @@ namespace BE_SWP391.Repositories.Implementations
                 Message = "Thêm vào giỏ hàng thành công!"
             };
         }
+        public List<CartResponse> GetList(int userId)
+        {
+            var query = from c in _marketContext.Carts
+                       join pp in _marketContext.PricingPlans on c.PlanId equals pp.PlanId
+                       join dp in _marketContext.DataPackages on pp.PackageId equals dp.PackageId
+                       join mt in _marketContext.MetaDatas on dp.MetadataId equals mt.MetadataId
+                       join u in _marketContext.Users on dp.UserId equals u.UserId
+
+                        where c.UserId == userId && c.Status == "Pending"
+                        select new
+                       {
+                           c.CartId,
+                           pp.PlanId,
+                           dp.PackageName,
+                           c.Quantity,
+                           ProviderName = u.FullName,
+                           mt.Type,
+                           mt.FileFormat,
+                           TotalAmout = c.Quantity * pp.Price,
+                       };
+
+
+            var data = query.ToList();
+
+            // Tính tổng toàn bộ TotalAmount ngay trên DB
+            var totalPrice = data.Sum(x => x.TotalAmout);
+
+            return data.Select(x => new CartResponse
+            {
+                CartId = x.CartId,
+                PlanId = x.PlanId,
+                PackageName = x.PackageName,
+                Quantity = x.Quantity,
+                ProviderName = x.ProviderName,
+                Type = x.Type,
+                FileFormat = x.FileFormat,
+                TotalAmout = x.TotalAmout,
+                TotalPrice = totalPrice
+            }).ToList();
+        }
+        public Cart GetById(int cartId)
+        {
+            return _marketContext.Carts.FirstOrDefault(c => c.CartId == cartId);
+        }
+        public void Update(Cart cart)
+        {
+            _marketContext.Carts.Update(cart);
+        }
+        public void Delete(int cartId)
+        {
+            var cart = GetById(cartId);
+            if (cart != null)
+            {
+                _marketContext.Carts.Remove(cart);
+            }
+        }
+        public void Save()
+        {
+            _marketContext.SaveChanges();
+        }
+
     }
 }

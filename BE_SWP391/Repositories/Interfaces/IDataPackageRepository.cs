@@ -19,5 +19,7 @@ namespace BE_SWP391.Repositories.Interfaces
 
         List<DataPendingRepsonse> GetDataPending();
         List<AllPackageResponse> GetAllPackage();
+        UserDataStatsResponse GetUserDataStats(int userId);
+        List<UserDataResponse> GetUserDataByUserId(int userId);
     }
 }

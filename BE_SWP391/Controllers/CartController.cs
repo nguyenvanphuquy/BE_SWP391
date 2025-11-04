@@ -20,5 +20,10 @@ namespace BE_SWP391.Controllers
         {
             return Ok(_cartService.AddToCart(request));
         }
+        [HttpGet]
+        public IActionResult GetById(int userId)
+        {
+            return Ok(_cartService.GetList(userId));
+        }
     }
 }
