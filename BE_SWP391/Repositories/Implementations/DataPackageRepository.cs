@@ -4,6 +4,7 @@ using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 
 namespace BE_SWP391.Repositories.Implementations
 {
@@ -151,6 +152,28 @@ namespace BE_SWP391.Repositories.Implementations
                             RevenueCount = _context.RevenueShares.Sum(j => j.Amount)
                         }
                         ).ToList();
+            return data;
+        }
+        public List<DataForUserResponse> GetDataForUser(int userId)
+        {
+            var data = (from dp in _context.DataPackages
+                        join u in _context.Users on dp.UserId equals u.UserId
+                        join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
+                        join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
+                        join t in _context.Transactions on pp.TransactionId equals t.TransactionId
+                        where dp.UserId == userId
+                        select new DataForUserResponse
+                        {
+                            PackageId = dp.PackageId,
+                            PackageName = dp.PackageName,
+                            ProviderName = u.FullName,
+                            PurchaseDate = t.TransactionDate,
+                            FileFormat = mt.FileFormat,
+                            FileSize = mt.FileSize,
+                            Status = dp.Status
+
+                        })
+                        .ToList();
             return data;
         }
     }

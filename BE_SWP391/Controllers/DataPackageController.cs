@@ -130,5 +130,15 @@ namespace BE_SWP391.Controllers
 
             return Ok(result);
         }
+        [HttpGet("user-data/{userId}")]
+        public IActionResult GetDataForUser(int userId)
+        {
+            var data = _dataPackageService.GetDataForUser(userId);
+            if (data == null || data.Count == 0)
+            {
+                return NotFound(new { message = "Không tìm thấy dữ liệu cho user này." });
+            }else
+                return Ok(data);
+        }
     }
 }

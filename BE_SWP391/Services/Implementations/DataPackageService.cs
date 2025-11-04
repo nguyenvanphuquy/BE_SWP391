@@ -164,5 +164,9 @@ namespace BE_SWP391.Services.Implementations
         {
             return _dataPackageRepository.GetUserDataByUserId(userId);
         }
+        public List<DataForUserResponse> GetDataForUser(int userId)
+        {
+            return _dataPackageRepository.GetDataForUser(userId);
+        }
     }
 }

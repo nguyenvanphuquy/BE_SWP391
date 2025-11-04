@@ -21,5 +21,6 @@ namespace BE_SWP391.Repositories.Interfaces
         List<AllPackageResponse> GetAllPackage();
         UserDataStatsResponse GetUserDataStats(int userId);
         List<UserDataResponse> GetUserDataByUserId(int userId);
+        List<DataForUserResponse> GetDataForUser(int userId);
     }
 }

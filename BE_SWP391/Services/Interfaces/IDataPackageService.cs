@@ -18,6 +18,7 @@ namespace BE_SWP391.Services.Interfaces
 
         UserDataStatsResponse GetUserDataStats(int userId);
         List<UserDataResponse> GetUserDataByUserId(int userId);
+        List<DataForUserResponse> GetDataForUser(int userId);
 
     }
 }

@@ -40,10 +40,10 @@ namespace BE_SWP391.Repositories.Implementations
         {
             var profit = (from rs in _context.RevenueShares
                           join user in _context.Users on rs.UserId equals user.UserId
-                          group new { rs, user } by new { rs.UserId, user.Username } into g
+                          group new { rs, user } by new { rs.UserId, user.FullName } into g
                           select new ProfitResponse
                           {
-                              ProviderName = g.Key.Username,
+                              ProviderName = g.Key.FullName,
                               SharePercentage = g.First().rs.SharePercentage,
                               PlatformPercentage = 100 - g.First().rs.SharePercentage
                           })

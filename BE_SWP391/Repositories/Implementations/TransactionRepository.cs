@@ -48,7 +48,7 @@ namespace BE_SWP391.Repositories.Implementations
                          select new RecentTransactionResponse
                          {
                              TransactionId = t.TransactionId,
-                             ProviderName = user.Username,
+                             ProviderName = user.FullName,
                              PackageName = dp.PackageName,
                              Amount = t.Amount,
                              Commission = rs != null ? rs.Amount : 0,
