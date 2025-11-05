@@ -19,6 +19,8 @@ public partial class Download
 
     public string? Status { get; set; }
 
+    public int? DownloadCount { get; set; }
+
     public virtual DataPackage Package { get; set; } = null!;
 
     public virtual Transaction Transaction { get; set; } = null!;

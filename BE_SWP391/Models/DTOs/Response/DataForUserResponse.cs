@@ -8,6 +8,7 @@
         public DateTime? PurchaseDate { get; set; }
         public string FileFormat { get; set; }
         public long? FileSize { get; set; }
+        public int? DownloadCount { get; set; }
         public string Status { get; set; }
     }
 }

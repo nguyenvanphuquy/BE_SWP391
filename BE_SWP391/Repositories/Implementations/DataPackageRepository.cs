@@ -161,6 +161,7 @@ namespace BE_SWP391.Repositories.Implementations
                         join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
                         join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
                         join t in _context.Transactions on pp.TransactionId equals t.TransactionId
+                        join d in _context.Downloads on dp.PackageId equals d.PackageId
                         where dp.UserId == userId
                         select new DataForUserResponse
                         {
@@ -170,7 +171,8 @@ namespace BE_SWP391.Repositories.Implementations
                             PurchaseDate = t.TransactionDate,
                             FileFormat = mt.FileFormat,
                             FileSize = mt.FileSize,
-                            Status = dp.Status
+                            DownloadCount = d.DownloadCount,
+                            Status = d.Status,
 
                         })
                         .ToList();

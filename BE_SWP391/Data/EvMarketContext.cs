@@ -241,7 +241,12 @@ public partial class EvMarketContext : DbContext
         {
             entity.HasKey(e => e.DownloadId).HasName("PK__Download__2EDDE1CDE204BDF7");
 
+            entity.ToTable(tb => tb.HasTrigger("trg_UpdateDownloadStatus"));
+
             entity.Property(e => e.DownloadId).HasColumnName("download_id");
+            entity.Property(e => e.DownloadCount)
+                .HasDefaultValue(0)
+                .HasColumnName("download_count");
             entity.Property(e => e.DownloadDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
