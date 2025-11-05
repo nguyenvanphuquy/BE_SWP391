@@ -5,6 +5,7 @@ using BE_SWP391.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Intrinsics.Arm;
+using System.Text.RegularExpressions;
 
 namespace BE_SWP391.Repositories.Implementations
 {
@@ -156,13 +157,15 @@ namespace BE_SWP391.Repositories.Implementations
         }
         public List<DataForUserResponse> GetDataForUser(int userId)
         {
-            var data = (from dp in _context.DataPackages
-                        join u in _context.Users on dp.UserId equals u.UserId
+            var data = (from inv in _context.Invoices 
+                        join u in _context.Users on inv.UserId equals u.UserId
+                        join t in _context.Transactions on inv.InvoiceId equals t.InvoiceId
+                        join pp in _context.PricingPlans on t.TransactionId equals pp.TransactionId
+                        join dp in _context.DataPackages on pp.PackageId equals dp.PackageId
                         join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
-                        join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
-                        join t in _context.Transactions on pp.TransactionId equals t.TransactionId
-                        join d in _context.Downloads on dp.PackageId equals d.PackageId
-                        where dp.UserId == userId
+                        join d in _context.Downloads on dp.PackageId equals d.PackageId into dlGroup
+                        from d in dlGroup.DefaultIfEmpty()
+                        where inv.UserId == userId
                         select new DataForUserResponse
                         {
                             PackageId = dp.PackageId,
@@ -180,22 +183,35 @@ namespace BE_SWP391.Repositories.Implementations
         }
         public ReportOrderResponse GetReportOrder(int userId)
         {
-            var userDataPackages = _context.DataPackages.Where(dp => dp.UserId == userId);
+            var userDataPackages = (
+                from inv in _context.Invoices
+                join u in _context.Users on inv.UserId equals u.UserId
+                join t in _context.Transactions on inv.InvoiceId equals t.InvoiceId
+                join pp in _context.PricingPlans on t.TransactionId equals pp.TransactionId
+                join dp in _context.DataPackages on pp.PackageId equals dp.PackageId
+                where inv.UserId == userId
+                select dp
+            ).Distinct()
+            .ToList();
+
             var totalPackages = userDataPackages.Count();
 
             var thisMonth = DateTime.Now.Month;
             var newPackagesThisMonth = userDataPackages
-            .Count(dp => dp.ReleaseDate != null && dp.ReleaseDate.Value.Month == thisMonth);
+                .Count(dp => dp.ReleaseDate != null && dp.ReleaseDate.Value.Month == thisMonth);
 
             var packageIds = userDataPackages.Select(dp => dp.PackageId).ToList();
 
-            var totalDownloads = _context.Downloads
-            .Count(d => packageIds.Contains(d.PackageId));
+            var downloads = _context.Downloads
+                .Where(d => packageIds.Contains(d.PackageId))
+                .ToList();
 
+            var totalDownloads = downloads.Count();
             var totalRemaining = totalPackages * 10 - totalDownloads;
 
-            var activeCount = userDataPackages.Count(dp => dp.Status == "Active");
-            var expiredCount = userDataPackages.Count(dp => dp.Status == "Expired");
+            var activeCount = downloads.Count(d => d.Status == "Active");
+            var expiredCount = downloads.Count(d => d.Status == "Expired");
+
             return new ReportOrderResponse
             {
                 TotalDownload = totalDownloads,
@@ -204,7 +220,6 @@ namespace BE_SWP391.Repositories.Implementations
                 NewPackageThisMonth = newPackagesThisMonth,
                 ActiveCount = activeCount,
                 ExpiredCount = expiredCount
-
             };
         }
     }
