@@ -168,5 +168,9 @@ namespace BE_SWP391.Services.Implementations
         {
             return _dataPackageRepository.GetDataForUser(userId);
         }
+        public ReportOrderResponse GetReportOrder(int userId)
+        {
+            return _dataPackageRepository.GetReportOrder(userId);
+        }
     }
 }

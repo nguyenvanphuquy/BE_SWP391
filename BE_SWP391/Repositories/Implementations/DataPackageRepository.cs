@@ -178,5 +178,34 @@ namespace BE_SWP391.Repositories.Implementations
                         .ToList();
             return data;
         }
+        public ReportOrderResponse GetReportOrder(int userId)
+        {
+            var userDataPackages = _context.DataPackages.Where(dp => dp.UserId == userId);
+            var totalPackages = userDataPackages.Count();
+
+            var thisMonth = DateTime.Now.Month;
+            var newPackagesThisMonth = userDataPackages
+            .Count(dp => dp.ReleaseDate != null && dp.ReleaseDate.Value.Month == thisMonth);
+
+            var packageIds = userDataPackages.Select(dp => dp.PackageId).ToList();
+
+            var totalDownloads = _context.Downloads
+            .Count(d => packageIds.Contains(d.PackageId));
+
+            var totalRemaining = totalPackages * 10 - totalDownloads;
+
+            var activeCount = userDataPackages.Count(dp => dp.Status == "Active");
+            var expiredCount = userDataPackages.Count(dp => dp.Status == "Expired");
+            return new ReportOrderResponse
+            {
+                TotalDownload = totalDownloads,
+                TotalRemaining = totalRemaining,
+                TotalPackage = totalPackages,
+                NewPackageThisMonth = newPackagesThisMonth,
+                ActiveCount = activeCount,
+                ExpiredCount = expiredCount
+
+            };
+        }
     }
 }

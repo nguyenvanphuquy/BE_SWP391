@@ -140,5 +140,11 @@ namespace BE_SWP391.Controllers
             }else
                 return Ok(data);
         }
+        [HttpGet("report/{userId}")]
+        public IActionResult GetReportOrder(int userId)
+        {
+            var report = _dataPackageService.GetReportOrder(userId);
+            return Ok(report);
+        }
     }
 }
