@@ -45,5 +45,13 @@ namespace BE_SWP391.Services.Implementations
         {
             return _repository.GetDashboardSummary();
         }
+        public OrderReportResponse GetOrderReport(int userId)
+        {
+            return _repository.GetOrderReport(userId);
+        }
+        public List<OrderListResponse> GetOrderList(int userId)
+        {
+            return _repository.GetOrderList(userId);
+        }
     }
 }

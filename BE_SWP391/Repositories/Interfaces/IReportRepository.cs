@@ -11,7 +11,9 @@ namespace BE_SWP391.Repositories.Interfaces
         List<TopPackageResponse> GetTopDownloadedPackages(int top = 10);
         List<TopProviderResponse> GetTopProviders(int top);
         List<CategoryAnalyticsResponse> GetCategoryAnalytics();
-        DashboardSummaryResponse GetDashboardSummary(); 
+        DashboardSummaryResponse GetDashboardSummary();
+        OrderReportResponse GetOrderReport(int userId);
+        List<OrderListResponse> GetOrderList(int userId);
 
     }
 }

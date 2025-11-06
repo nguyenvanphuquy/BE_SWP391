@@ -149,5 +149,47 @@ namespace BE_SWP391.Repositories.Implementations
 
             return result;
         }
+        public OrderReportResponse GetOrderReport(int userId)
+        {
+            var userInvoice = (from inv in _marketContext.Invoices
+                               join u in _marketContext.Users on inv.UserId equals u.UserId
+                               join t in _marketContext.Transactions on inv.InvoiceId equals t.InvoiceId
+                               join pp in _marketContext.PricingPlans on t.TransactionId equals pp.TransactionId
+                               where inv.UserId == userId
+                               select inv).ToList();
+            var sumTotal = userInvoice.Count();
+            var statusCount = userInvoice.Count(userInvoice => userInvoice.Status == "paid");
+            var totalPrice = userInvoice.Sum(i => i.TotalAmount.GetValueOrDefault());
+            return new OrderReportResponse
+            {
+                SumCart = sumTotal,
+                StatusCount = statusCount,
+                TotalPrice = totalPrice
+
+            };
+        }
+        public List<OrderListResponse> GetOrderList(int userId)
+        {
+            var orders = (from inv in _marketContext.Invoices
+                          join u in _marketContext.Users on inv.UserId equals u.UserId
+                          join t in _marketContext.Transactions on inv.InvoiceId equals t.InvoiceId
+                          join pm in _marketContext.PaymentMethods on t.TransactionId equals pm.TransactionId
+                          join pp in _marketContext.PricingPlans on t.TransactionId equals pp.TransactionId
+                          where inv.UserId == userId
+                          select new OrderListResponse
+                          {
+                              InvoiceId = inv.InvoiceId,
+                              InvoiceName = inv.InvoiceNumber,
+                              IssueDay = inv.IssueDate,
+                                PackageCount = (from t in _marketContext.Transactions
+                                                join pp in _marketContext.PricingPlans on t.TransactionId equals pp.TransactionId
+                                                where t.InvoiceId == inv.InvoiceId
+                                                select pp).Count(),
+                              SumPrice = inv.TotalAmount.GetValueOrDefault(),
+                                MethodName = pm.MethodName,
+                                Status = inv.Status
+                          }).ToList();
+            return orders;
+        }
     }
 }

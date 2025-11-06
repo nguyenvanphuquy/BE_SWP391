@@ -10,5 +10,7 @@ namespace BE_SWP391.Services.Interfaces
         List<TopProviderResponse> GetTopProviders(int top);
         List<CategoryAnalyticsResponse> GetCategoryAnalytics();
         DashboardSummaryResponse GetDashboardSummary();
+        OrderReportResponse GetOrderReport(int userId);
+        List<OrderListResponse> GetOrderList(int userId);
     }
 }

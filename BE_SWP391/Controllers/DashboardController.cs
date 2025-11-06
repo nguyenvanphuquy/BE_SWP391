@@ -9,7 +9,7 @@ namespace BE_SWP391.Controllers
     public class DashboardController : ControllerBase
     {
         private readonly IReportService _reportService;
-        public DashboardController( IReportService reportService)
+        public DashboardController(IReportService reportService)
         {
             _reportService = reportService;
         }
@@ -44,6 +44,18 @@ namespace BE_SWP391.Controllers
         public IActionResult GetSummary()
         {
             var result = _reportService.GetDashboardSummary();
+            return Ok(result);
+        }
+        [HttpGet("order-report/{userId}")]
+        public IActionResult GetOrderReport(int userId)
+        {
+            var result = _reportService.GetOrderReport(userId);
+            return Ok(result);
+        }
+        [HttpGet("order-list/{userId}")]
+        public IActionResult GetOrderList(int userId)
+        {
+            var result = _reportService.GetOrderList(userId);
             return Ok(result);
         }
     }
