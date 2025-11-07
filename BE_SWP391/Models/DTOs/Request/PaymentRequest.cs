@@ -6,6 +6,5 @@
         public int[] CartIds { get; set; }   // hoặc plan ids
         public decimal Amount { get; set; } // VND
         public string PaymentMethod { get; set; } // "vnpay" or "momo"
-        public string OrderInfo { get; set; }
     }
 }

@@ -37,10 +37,12 @@ namespace BE_SWP391.Repositories.Implementations
         }
         public ReportPricingStaffResponse GetReportPricingStaff(int userId)
         {
-            var pricingPlans = _context.PricingPlans
-                                .Where(pp => pp.PlanId == userId)
-                                .ToList();
-            var packageCount = pricingPlans.Count();
+            var packages = (from dp in _context.DataPackages
+                            join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
+                            where dp.UserId == userId
+                            select pp).ToList();
+
+            var packageCount = packages.Count();
             if (packageCount == 0)
             {
                 return new ReportPricingStaffResponse
@@ -50,7 +52,7 @@ namespace BE_SWP391.Repositories.Implementations
                     PricingPlan = 0
                 };
             }
-            var totalPricing = pricingPlans.Sum(pp => pp.Price);
+            var totalPricing = packages.Sum(pp => pp.Price);
             var averagePricing = totalPricing / packageCount;
             return new ReportPricingStaffResponse
             {
@@ -67,7 +69,8 @@ namespace BE_SWP391.Repositories.Implementations
                          where dp.UserId == userId
                          select new ListPricingResponse
                         {
-                            PackageName = dp.PackageName,
+                            PricingId = pp.PlanId,
+                             PackageName = dp.PackageName,
                             Description = dp.Description,
                             Price = pp.Price,
                             status = dp.Status

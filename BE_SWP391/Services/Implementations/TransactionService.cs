@@ -99,7 +99,6 @@ namespace BE_SWP391.Services.Implementations
             data["vnp_CurrCode"] = "VND";
             data["vnp_IpAddr"] = "127.0.0.1";
             data["vnp_Locale"] = "vn";
-            data["vnp_OrderInfo"] = req.OrderInfo ?? $"Payment for tx {tx.TransactionId}";
             data["vnp_OrderType"] = "other";
             data["vnp_ReturnUrl"] = vnp_Returnurl;
             data["vnp_TxnRef"] = vnp_OrderId;
@@ -115,11 +114,10 @@ namespace BE_SWP391.Services.Implementations
             var orderId = tx.TransactionId.ToString();
             var amount = ((long)req.Amount).ToString(); // integer
             var requestId = Guid.NewGuid().ToString();
-            var orderInfo = req.OrderInfo ?? $"Payment for tx {tx.TransactionId}";
             var ipnUrl = momo_Returnurl;
             var redirectUrl = momo_Returnurl;
 
-            var rawHash = $"accessKey={momo_AccessKey}&amount={amount}&extraData=&ipnUrl={ipnUrl}&orderId={orderId}&orderInfo={orderInfo}&partnerCode={momo_PartnerCode}&redirectUrl={redirectUrl}&requestId={requestId}&requestType=captureWallet";
+            var rawHash = $"accessKey={momo_AccessKey}&amount={amount}&extraData=&ipnUrl={ipnUrl}&orderId={orderId}&partnerCode={momo_PartnerCode}&redirectUrl={redirectUrl}&requestId={requestId}&requestType=captureWallet";
             var signature = HmacSHA256(momo_SecretKey, rawHash);
 
             var body = new
@@ -129,7 +127,6 @@ namespace BE_SWP391.Services.Implementations
                 requestId,
                 amount,
                 orderId,
-                orderInfo,
                 redirectUrl,
                 ipnUrl,
                 requestType = "captureWallet",
@@ -185,7 +182,7 @@ namespace BE_SWP391.Services.Implementations
             if (!body.ContainsKey("signature")) return false;
             var signature = body["signature"];
             // Build raw string per MoMo docs — here assume order of fields as used when create
-            var rawString = $"accessKey={momo_AccessKey}&amount={body.GetValueOrDefault("amount", "")}&extraData={body.GetValueOrDefault("extraData", "")}&message={body.GetValueOrDefault("message", "")}&orderId={body.GetValueOrDefault("orderId", "")}&orderInfo={body.GetValueOrDefault("orderInfo", "")}&orderType={body.GetValueOrDefault("orderType", "")}&partnerCode={momo_PartnerCode}&payType={body.GetValueOrDefault("payType", "")}&requestId={body.GetValueOrDefault("requestId", "")}&responseTime={body.GetValueOrDefault("responseTime", "")}&result={body.GetValueOrDefault("result", "")}&transId={body.GetValueOrDefault("transId", "")}";
+            var rawString = $"accessKey={momo_AccessKey}&amount={body.GetValueOrDefault("amount", "")}&extraData={body.GetValueOrDefault("extraData", "")}&message={body.GetValueOrDefault("message", "")}&orderId={body.GetValueOrDefault("orderId", "")}&orderType={body.GetValueOrDefault("orderType", "")}&partnerCode={momo_PartnerCode}&payType={body.GetValueOrDefault("payType", "")}&requestId={body.GetValueOrDefault("requestId", "")}&responseTime={body.GetValueOrDefault("responseTime", "")}&result={body.GetValueOrDefault("result", "")}&transId={body.GetValueOrDefault("transId", "")}";
             var sign = HmacSHA256(momo_SecretKey, rawString);
             if (!string.Equals(sign, signature, StringComparison.OrdinalIgnoreCase)) return false;
 
