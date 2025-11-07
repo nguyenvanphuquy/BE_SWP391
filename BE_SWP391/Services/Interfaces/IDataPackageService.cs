@@ -6,7 +6,7 @@ namespace BE_SWP391.Services.Interfaces
     {
         DataPackageResponse? GetById(int id);
         IEnumerable<DataPackageResponse> GetAll();
-        DataPackageResponse? Create(DataPackageRequest request);
+        CreatePackageResponse Create(DataPackageRequest request);
         DataPackageResponse? Update(int id, DataPackageRequest request);
         bool Detele(int id);
 

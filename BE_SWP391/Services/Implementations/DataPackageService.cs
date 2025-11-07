@@ -1,11 +1,13 @@
-﻿using BE_SWP391.Models.DTOs.Request;
+﻿using BE_SWP391.Data;
+using BE_SWP391.Models.DTOs.Request;
 using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Implementations;
 using BE_SWP391.Repositories.Interfaces;
 using BE_SWP391.Services.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using BE_SWP391.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace BE_SWP391.Services.Implementations
 {
     public class DataPackageService : IDataPackageService
@@ -29,16 +31,16 @@ namespace BE_SWP391.Services.Implementations
         {
             return _dataPackageRepository.GetAll().Select(ToResponse);
         }
-        public DataPackageResponse? Create(DataPackageRequest request)
+        public CreatePackageResponse Create(DataPackageRequest request)
         {
-            // 1. Tìm SubCategory theo tên
+            // 1️⃣ Tìm SubCategory theo tên
             var sub = _subCategoryRepository.GetByName(request.SubCategoryName);
             if (sub == null)
             {
                 throw new Exception($"Không tìm thấy SubCategory với tên: {request.SubCategoryName}");
             }
 
-            // 2. Lưu MetaData
+            // 2️⃣ Lưu MetaData
             var meta = new MetaData
             {
                 Type = request.MetaData.Type,
@@ -52,23 +54,46 @@ namespace BE_SWP391.Services.Implementations
             _context.MetaDatas.Add(meta);
             _context.SaveChanges();
 
-            // 3. Tạo DataPackage
+            // 3️⃣ Tạo DataPackage
             var data = new DataPackage
             {
                 PackageName = request.PackageName,
                 Description = request.Description,
                 Version = request.Version,
-                ReleaseDate = request.ReleaseDate,
-                SubcategoryId = sub.SubcategoryId,   
+                SubcategoryId = sub.SubcategoryId,
                 UserId = request.UserId,
                 MetadataId = meta.MetadataId,
+                ReleaseDate = DateOnly.FromDateTime(DateTime.Now),
                 LastUpdate = DateTime.Now,
                 Status = "Pending"
             };
             _dataPackageRepository.Create(data);
             _context.SaveChanges();
-            return ToResponse(data);
+
+            // 4️⃣ Trả về Response
+            return new CreatePackageResponse
+            {
+                PackageId = data.PackageId,
+                PackageName = data.PackageName,
+                Description = data.Description ?? "",
+                Version = data.Version ?? "",
+                SubCategoryName = sub.SubcategoryName,
+                UserId = data.UserId,
+
+                Type = meta.Type,
+                Title = meta.Title ?? "",
+                MetaDescription = meta.Description ?? "",
+                Keywords = meta.Keywords ?? "",
+                FileFormat = meta.FileFormat ?? "",
+                FileSize = meta.FileSize ?? 0,
+
+                ReleaseDate = data.ReleaseDate,
+                LastUpdate = data.LastUpdate,
+                Status = data.Status,
+                Message = "Tạo gói dữ liệu thành công!"
+            };
         }
+
         public DataPackageResponse? Update(int id, DataPackageRequest request)
         {
             var dataPackage = _dataPackageRepository.GetById(id);
@@ -79,9 +104,9 @@ namespace BE_SWP391.Services.Implementations
             dataPackage.PackageName = request.PackageName;
             dataPackage.Description = request.Description;
             dataPackage.Version = request.Version;
-            dataPackage.ReleaseDate = request.ReleaseDate;
+            //dataPackage.ReleaseDate = request.ReleaseDate;
             dataPackage.LastUpdate = DateTime.Now;
-            dataPackage.Status = request.Status;
+            //dataPackage.Status = request.Status;
             dataPackage.UserId = request.UserId;
             //dataPackage.SubcategoryId = request.SubcategoryId;
             //dataPackage.MetadataId = request.MetadataId;
