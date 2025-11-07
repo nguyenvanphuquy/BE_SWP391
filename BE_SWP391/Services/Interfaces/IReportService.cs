@@ -13,5 +13,6 @@ namespace BE_SWP391.Services.Interfaces
         OrderReportResponse GetOrderReport(int userId);
         List<OrderListResponse> GetOrderList(int userId);
         OrderDetailResponse GetOrderDetail(int invoiceId);
+
     }
 }

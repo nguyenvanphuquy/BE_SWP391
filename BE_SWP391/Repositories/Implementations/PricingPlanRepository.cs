@@ -1,6 +1,7 @@
 ﻿using BE_SWP391.Data;
-using BE_SWP391.Models.Entities;
 using BE_SWP391.Models;
+using BE_SWP391.Models.DTOs.Response;
+using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
 namespace BE_SWP391.Repositories.Implementations
 {
@@ -33,6 +34,30 @@ namespace BE_SWP391.Repositories.Implementations
         {
                 _context.PricingPlans.Remove(pricingPlan);
                 _context.SaveChanges();
+        }
+        public ReportPricingStaffResponse GetReportPricingStaff(int userId)
+        {
+            var pricingPlans = _context.PricingPlans
+                                .Where(pp => pp.PlanId == userId)
+                                .ToList();
+            var packageCount = pricingPlans.Count();
+            if (packageCount == 0)
+            {
+                return new ReportPricingStaffResponse
+                {
+                    AvenragePricing = 0,
+                    PackageCount = 0,
+                    PricingPlan = 0
+                };
+            }
+            var totalPricing = pricingPlans.Sum(pp => pp.Price);
+            var averagePricing = totalPricing / packageCount;
+            return new ReportPricingStaffResponse
+            {
+                AvenragePricing = averagePricing,
+                PackageCount = packageCount,
+                PricingPlan = packageCount
+            };
         }
     }
 }

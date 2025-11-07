@@ -20,7 +20,7 @@ namespace BE_SWP391.Services.Implementations
         }
         public IEnumerable<PricingPlanResponse> GetAll()
         {
-           return _pricingPlanRepository.GetAll().Select(ToResponse);
+            return _pricingPlanRepository.GetAll().Select(ToResponse);
         }
         public PricingPlanResponse? Create(PricingPlanRequest request)
         {
@@ -73,6 +73,10 @@ namespace BE_SWP391.Services.Implementations
                 Discount = pricingPlan.Discount
             };
 
+        }
+        public ReportPricingStaffResponse GetReportPricingStaff(int userId)
+        {
+            return _pricingPlanRepository.GetReportPricingStaff(userId);
         }
     }
 }

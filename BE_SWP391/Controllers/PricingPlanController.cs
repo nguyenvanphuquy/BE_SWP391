@@ -55,5 +55,11 @@ namespace BE_SWP391.Controllers
             if (!result) return NotFound();
             return NoContent();
         }
+        [HttpGet("ReportPricingStaff/{userId}")]
+        public IActionResult GetReportPricingStaff(int userId)
+        {
+            var report = _pricingPlanService.GetReportPricingStaff(userId);
+            return Ok(report);
+        }
     }
 }
