@@ -1,6 +1,8 @@
 ﻿using BE_SWP391.Data;
 using BE_SWP391.Models.DTOs.Response;
+using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
+using Humanizer;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.Intrinsics.Arm;
@@ -195,6 +197,43 @@ namespace BE_SWP391.Repositories.Implementations
                               Status = g.Key.Status
                           }).ToList();
             return orders;
+        }
+        public OrderDetailResponse GetOrderDetail(int invoiceId)
+        {
+            var orderDetail = (from inv in _marketContext.Invoices
+                               join u in _marketContext.Users on inv.UserId equals u.UserId
+                               join t in _marketContext.Transactions on inv.InvoiceId equals t.InvoiceId into tGroup
+                               from t in tGroup.DefaultIfEmpty()
+                               join pm in _marketContext.PaymentMethods on t.TransactionId equals pm.TransactionId into pmGroup
+                               from pm in pmGroup.DefaultIfEmpty()
+                               join pp in _marketContext.PricingPlans on t.TransactionId equals pp.TransactionId into ppGroup
+                               from pp in ppGroup.DefaultIfEmpty()
+                               join dp in _marketContext.DataPackages on pp.PackageId equals dp.PackageId into dpGroup
+                               from dp in dpGroup.DefaultIfEmpty()
+                               where inv.InvoiceId == invoiceId
+                               select new OrderDetailResponse
+                               {
+                                   // Thông tin khách hàng
+                                   UserName = u.FullName,
+                                   UserEmail = u.Email,
+                                   PhoneNumber = u.Phone,
+                                   Organization = u.Organization,
+
+                                   // Thông tin hóa đơn
+                                   InvoiceName = inv.InvoiceNumber,
+                                   IssueDay = inv.IssueDate,
+                                   MethodName = pm.MethodName,
+                                   Status = inv.Status,
+
+                                   // Chi tiết gói
+                                   PackageName = dp.PackageName,
+                                   Quantity = 1,
+                                   PackagePrice = pp.Price,
+                                   TotalPrice = 1 * pp.Price,
+                                   SumPrice = pp.Price,
+                               }).FirstOrDefault();
+
+            return orderDetail;
         }
     }
 }

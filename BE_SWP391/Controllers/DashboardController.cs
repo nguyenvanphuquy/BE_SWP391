@@ -58,5 +58,11 @@ namespace BE_SWP391.Controllers
             var result = _reportService.GetOrderList(userId);
             return Ok(result);
         }
+        [HttpGet("order-detail/{invoiceId}")]
+        public IActionResult GetOrderDetail(int invoiceId)
+        {
+            var result = _reportService.GetOrderDetail(invoiceId);
+            return Ok(result);
+        }
     }
 }

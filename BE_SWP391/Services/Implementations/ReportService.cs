@@ -53,5 +53,9 @@ namespace BE_SWP391.Services.Implementations
         {
             return _repository.GetOrderList(userId);
         }
+        public OrderDetailResponse GetOrderDetail(int invoiceId)
+        {
+            return _repository.GetOrderDetail(invoiceId);
+        }
     }
 }
