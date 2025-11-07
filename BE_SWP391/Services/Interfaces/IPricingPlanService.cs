@@ -11,5 +11,6 @@ namespace BE_SWP391.Services.Interfaces
         PricingPlanResponse? Update(int id, PricingPlanRequest request);
         bool Delete(int id);
         ReportPricingStaffResponse GetReportPricingStaff(int userId);
+        List<ListPricingResponse> GetListPricing(int userId);
     }
 }

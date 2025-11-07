@@ -61,5 +61,11 @@ namespace BE_SWP391.Controllers
             var report = _pricingPlanService.GetReportPricingStaff(userId);
             return Ok(report);
         }
+        [HttpGet("ListPricing/{userId}")]
+        public IActionResult GetListPricing(int userId)
+        {
+            var listPricing = _pricingPlanService.GetListPricing(userId);
+            return Ok(listPricing);
+        }
     }
 }

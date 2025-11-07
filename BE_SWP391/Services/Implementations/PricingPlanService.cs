@@ -78,5 +78,9 @@ namespace BE_SWP391.Services.Implementations
         {
             return _pricingPlanRepository.GetReportPricingStaff(userId);
         }
+        public List<ListPricingResponse> GetListPricing(int userId)
+        {
+            return _pricingPlanRepository.GetListPricing(userId);
+        }
     }
 }

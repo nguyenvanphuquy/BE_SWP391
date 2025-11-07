@@ -59,5 +59,22 @@ namespace BE_SWP391.Repositories.Implementations
                 PricingPlan = packageCount
             };
         }
+        public List<ListPricingResponse> GetListPricing(int userId)
+        {
+            var query = (from pp in _context.PricingPlans
+                         join dp in _context.DataPackages on pp.PackageId equals dp.PackageId into dpGroup
+                         from dp in dpGroup.DefaultIfEmpty()
+                         where dp.UserId == userId
+                         select new ListPricingResponse
+                        {
+                            PackageName = dp.PackageName,
+                            Description = dp.Description,
+                            Price = pp.Price,
+                            status = dp.Status
+
+                        } )
+                        .ToList();
+            return query;
+        }
     }
 }
