@@ -12,29 +12,8 @@ namespace BE_SWP391.Repositories.Implementations
         {
             _context = context;
         }
-        public Transaction? GetById(int id)
-        {
-            return _context.Transactions.Find(id);
-        }
-        public IEnumerable<Transaction> GetAll()
-        {
-            return _context.Transactions.ToList();
-        }
-        public void Create(Transaction transaction)
-        {
-            _context.Transactions.Add(transaction);
-            _context.SaveChanges();
-        }
-        public void Update(Transaction transaction)
-        {
-            _context.Transactions.Update(transaction);
-            _context.SaveChanges();
-        }
-        public void Delete(Transaction transaction)
-        {
-                _context.Transactions.Remove(transaction);
-                _context.SaveChanges();
-        }
+
+
         public List<RecentTransactionResponse> GetRecentTransaction(int count = 5)
         {
             var query = (from t in _context.Transactions
@@ -93,5 +72,28 @@ namespace BE_SWP391.Repositories.Implementations
 
             };
         }
+        public Transaction CreateTransaction(Transaction tx)
+        {
+            _context.Transactions.Add(tx);
+            return tx;
+        }
+        public Invoice CreateInvoice(Invoice inv)
+        {
+            _context.Invoices.Add(inv);
+            return inv;
+        }
+
+        public Transaction GetTransactionById(int id)
+            => _context.Transactions.FirstOrDefault(t => t.TransactionId == id);
+
+        public void UpdateTransaction(Transaction tx)
+            => _context.Transactions.Update(tx);
+
+        public IEnumerable<Cart> GetCartsByIds(int[] ids)
+            => _context.Carts.Where(c => ids.Contains(c.CartId)).ToList();
+
+        public void RemoveCart(Cart c) => _context.Carts.Remove(c);
+
+        public void SaveChanges() => _context.SaveChanges();
     }
 }

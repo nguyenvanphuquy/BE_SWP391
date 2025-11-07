@@ -5,12 +5,16 @@ namespace BE_SWP391.Repositories.Interfaces
 {
     public interface ITransactionRepository
     {
-        Transaction? GetById(int id);
-        IEnumerable<Transaction> GetAll();
-        void Create(Transaction transaction);
-        void Update(Transaction transaction);
-        void Delete(Transaction transaction);
+
+
         List<RecentTransactionResponse> GetRecentTransaction(int count = 5);
         ReportTransactionResponse GetReportTransaction();
+        Transaction CreateTransaction(Transaction tx);
+        Invoice CreateInvoice(Invoice inv);
+        Transaction GetTransactionById(int id);
+        void UpdateTransaction(Transaction tx);
+        IEnumerable<Cart> GetCartsByIds(int[] ids);
+        void RemoveCart(Cart c);
+        void SaveChanges();
     }
 }
