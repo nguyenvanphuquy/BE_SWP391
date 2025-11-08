@@ -1,16 +1,20 @@
-﻿using BE_SWP391.Models.DTOs.Request;
+﻿using BE_SWP391.Data;
+using BE_SWP391.Models.DTOs.Request;
 using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
 using BE_SWP391.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Text;
 using System.Web;
+using BE_SWP391.Data;
 namespace BE_SWP391.Services.Implementations
 {
     public class TransactionService : ITransactionService
     {
         private readonly ITransactionRepository _transactionRepository;
+        private readonly EvMarketContext _context;
         private readonly IConfiguration _config;
         private readonly HttpClient _http = new HttpClient();
 
@@ -45,68 +49,108 @@ namespace BE_SWP391.Services.Implementations
             momo_Returnurl = mm["ReturnUrl"];
         }
 
-        public PaymentCreateResponse CreatePayment(PaymentRequest request)
+        //public PaymentCreateResponse CreatePayment(PaymentRequest request)
+        //{
+        public string CreateTransaction(int userId, int[] cartIds, decimal totalAmount)
         {
-            // 1) tạo Invoice + Transaction
+            // 1️⃣ Tạo hóa đơn
             var invoice = new Invoice
             {
-                InvoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}-{request.UserId}",
-                UserId = request.UserId,
-                TotalAmount = request.Amount,
+                InvoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}-{userId}",
+                UserId = userId,
+                TotalAmount = totalAmount,
                 IssueDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 Currency = "VND"
             };
-            _transactionRepository.CreateInvoice(invoice);
+            _context.Invoices.Add(invoice);
 
-            var tx = new Transaction
+            // 2️⃣ Tạo giao dịch
+            var transaction = new Transaction
             {
                 TransactionDate = DateTime.UtcNow,
-                Amount = request.Amount,
+                Amount = totalAmount,
                 Currency = "VND",
-                Status = "pending",
+                Status = "success",  // vì không qua cổng thanh toán, coi như đã thanh toán thành công
                 Invoice = invoice
             };
-            _transactionRepository.CreateTransaction(tx);
-            _transactionRepository.SaveChanges(); // cần ID
+            _context.Transactions.Add(transaction);
 
-            // 2) clear or mark carts later after success. For now keep them.
+            // 3️⃣ Lấy giỏ hàng và đổi trạng thái
+            var carts = _context.Carts.Where(c => cartIds.Contains(c.CartId) && c.UserId == userId).ToList();
 
-            if (string.Equals(request.PaymentMethod, "vnpay", StringComparison.OrdinalIgnoreCase))
+            if (carts == null || !carts.Any())
+                throw new Exception("Không tìm thấy giỏ hàng hợp lệ cho người dùng này.");
+
+            foreach (var cart in carts)
             {
-                var url = CreateVnPayUrl(request, tx);
-                return new PaymentCreateResponse { PaymentUrl = url, TransactionRef = tx.TransactionId.ToString() };
+                cart.Status = "paid"; // hoặc “checkedout”
             }
-            else if (string.Equals(request.PaymentMethod, "momo", StringComparison.OrdinalIgnoreCase))
-            {
-                var url = CreateMomoUrl(request, tx);
-                return new PaymentCreateResponse { PaymentUrl = url, TransactionRef = tx.TransactionId.ToString() };
-            }
-            else throw new ArgumentException("Unsupported method");
-        }
 
-        private string CreateVnPayUrl(PaymentRequest req, Transaction tx)
-        {
-            var vnp_OrderId = tx.TransactionId.ToString();
-            var vnp_Amount = ((long)req.Amount * 100).ToString(); // VNP: amount *100
-            var vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
+            // 4️⃣ Lưu thay đổi
+            _context.SaveChanges();
 
-            var data = new SortedDictionary<string, string>();
-            data["vnp_Version"] = "2.1.0";
-            data["vnp_Command"] = "pay";
-            data["vnp_TmnCode"] = vnp_TmnCode;
-            data["vnp_Amount"] = vnp_Amount;
-            data["vnp_CreateDate"] = vnp_CreateDate;
-            data["vnp_CurrCode"] = "VND";
-            data["vnp_IpAddr"] = "127.0.0.1";
-            data["vnp_Locale"] = "vn";
-            data["vnp_OrderType"] = "other";
-            data["vnp_ReturnUrl"] = vnp_Returnurl;
-            data["vnp_TxnRef"] = vnp_OrderId;
+            return $"Giao dịch {transaction.TransactionId} đã được tạo thành công và {carts.Count} giỏ hàng đã cập nhật trạng thái.";
+        
+        //    // 1) tạo Invoice + Transaction
+        //    var invoice = new Invoice
+        //    {
+        //        InvoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}-{request.UserId}",
+        //        UserId = request.UserId,
+        //        TotalAmount = request.Amount,
+        //        IssueDate = DateOnly.FromDateTime(DateTime.UtcNow),
+        //        Currency = "VND"
+        //    };
+        //    _transactionRepository.CreateInvoice(invoice);
 
-            var raw = string.Join("&", data.Select(kv => $"{kv.Key}={HttpUtility.UrlEncode(kv.Value)}"));
-            var sign = HmacSHA512(vnp_HashSecret, raw);
-            var url = $"{vnp_Url}?{raw}&vnp_SecureHash={sign}";
-            return url;
+        //    var tx = new Transaction
+        //    {
+        //        TransactionDate = DateTime.UtcNow,
+        //        Amount = request.Amount,
+        //        Currency = "VND",
+        //        Status = "pending",
+        //        Invoice = invoice
+        //    };
+        //    _transactionRepository.CreateTransaction(tx);
+        //    _transactionRepository.SaveChanges(); // cần ID
+
+        //    // 2) clear or mark carts later after success. For now keep them.
+
+        //    if (string.Equals(request.PaymentMethod, "vnpay", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        var url = CreateVnPayUrl(request, tx);
+        //        return new PaymentCreateResponse { PaymentUrl = url, TransactionRef = tx.TransactionId.ToString() };
+        //    }
+        //    else if (string.Equals(request.PaymentMethod, "momo", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        var url = CreateMomoUrl(request, tx);
+        //        return new PaymentCreateResponse { PaymentUrl = url, TransactionRef = tx.TransactionId.ToString() };
+        //    }
+        //    else throw new ArgumentException("Unsupported method");
+        //}
+
+        //private string CreateVnPayUrl(PaymentRequest req, Transaction tx)
+        //{
+        //    var vnp_OrderId = tx.TransactionId.ToString();
+        //    var vnp_Amount = ((long)req.Amount * 100).ToString(); // VNP: amount *100
+        //    var vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
+
+        //    var data = new SortedDictionary<string, string>();
+        //    data["vnp_Version"] = "2.1.0";
+        //    data["vnp_Command"] = "pay";
+        //    data["vnp_TmnCode"] = vnp_TmnCode;
+        //    data["vnp_Amount"] = vnp_Amount;
+        //    data["vnp_CreateDate"] = vnp_CreateDate;
+        //    data["vnp_CurrCode"] = "VND";
+        //    data["vnp_IpAddr"] = "127.0.0.1";
+        //    data["vnp_Locale"] = "vn";
+        //    data["vnp_OrderType"] = "other";
+        //    data["vnp_ReturnUrl"] = vnp_Returnurl;
+        //    data["vnp_TxnRef"] = vnp_OrderId;
+
+        //    var raw = string.Join("&", data.Select(kv => $"{kv.Key}={HttpUtility.UrlEncode(kv.Value)}"));
+        //    var sign = HmacSHA512(vnp_HashSecret, raw);
+        //    var url = $"{vnp_Url}?{raw}&vnp_SecureHash={sign}";
+        //    return url;
         }
 
         private string CreateMomoUrl(PaymentRequest req, Transaction tx)

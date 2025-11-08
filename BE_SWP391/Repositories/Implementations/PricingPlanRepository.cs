@@ -1,6 +1,7 @@
 ﻿using BE_SWP391.Data;
 using BE_SWP391.Models;
 using BE_SWP391.Models.DTOs.Response;
+using BE_SWP391.Models.DTOs.Request;
 using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
 namespace BE_SWP391.Repositories.Implementations
@@ -25,10 +26,25 @@ namespace BE_SWP391.Repositories.Implementations
             _context.PricingPlans.Add(pricingPlan);
             _context.SaveChanges();
         }
-        public void Update(PricingPlan pricingPlan)
+        public UpdatePricingResponse UpdatePricing(UpdatePricingRequest request)
         {
-            _context.PricingPlans.Update(pricingPlan);
+            var pricingPlan = _context.PricingPlans.Find(request.PricingPlanId);
+            if (pricingPlan == null)
+            {
+                throw new Exception("Pricing plan not found");
+            }
+            var oldPrice = pricingPlan.Price;
+            pricingPlan.Price = request.NewPrice;
             _context.SaveChanges();
+            var dataPackage = _context.DataPackages.Find(pricingPlan.PackageId);
+            return new UpdatePricingResponse
+            {
+                PricingPlanId = pricingPlan.PlanId,
+                PacageName = dataPackage != null ? dataPackage.PackageName : "Unknown",
+                Description = dataPackage != null ? dataPackage.Description : "No description",
+                OldPrice = oldPrice,
+                NewPrice = pricingPlan.Price
+            };
         }
         public void Delete(PricingPlan pricingPlan)
         {

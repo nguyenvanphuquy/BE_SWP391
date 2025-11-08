@@ -20,7 +20,10 @@ namespace BE_SWP391.Controllers
         {
             try
             {
-                var res = _transactionService.CreatePayment(request);
+                var res = _transactionService.CreateTransaction(request.UserId,
+                    request.CartIds,
+                    request.Amount
+                );
                 return Ok(res);
             }
             catch (Exception ex)

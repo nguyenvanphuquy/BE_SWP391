@@ -37,20 +37,9 @@ namespace BE_SWP391.Services.Implementations
             _pricingPlanRepository.Create(pricingPlan);
             return ToResponse(pricingPlan);
         }
-        public PricingPlanResponse? Update(int id, PricingPlanRequest request)
+        public UpdatePricingResponse UpdatePricing(UpdatePricingRequest request)
         {
-            var pricingPlan = _pricingPlanRepository.GetById(id);
-            if (pricingPlan == null) return null;
-
-            pricingPlan.PlanName = request.PlanName;
-            pricingPlan.Price = request.Price;
-            pricingPlan.Currency = request.Currency;
-            pricingPlan.Duration = request.Duration;
-            pricingPlan.AccessType = request.AccessType;
-            pricingPlan.PackageId = request.PackageId;
-            pricingPlan.Discount = request.Discount;
-            _pricingPlanRepository.Update(pricingPlan);
-            return ToResponse(pricingPlan);
+            return _pricingPlanRepository.UpdatePricing(request);
         }
         public bool Delete(int id)
         {

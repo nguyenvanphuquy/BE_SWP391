@@ -9,7 +9,8 @@ namespace BE_SWP391.Services.Interfaces
 
         List<RecentTransactionResponse> GetRecentTransactions(int count = 5);
         ReportTransactionResponse GetReportTransaction();
-        PaymentCreateResponse CreatePayment(PaymentRequest request);
+        //PaymentCreateResponse CreatePayment(PaymentRequest request);
+        string CreateTransaction(int userId, int[] cartIds, decimal totalAmount);
         bool HandleCallbackVnPay(IDictionary<string, string> query);
         bool HandleCallbackMomo(Dictionary<string, string> body);
     }

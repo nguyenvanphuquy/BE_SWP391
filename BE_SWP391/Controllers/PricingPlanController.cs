@@ -37,16 +37,18 @@ namespace BE_SWP391.Controllers
             var pricingPlan = _pricingPlanService.Create(request);
             return CreatedAtAction(nameof(GetById), new { id = pricingPlan.PackageId }, pricingPlan);
         }
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] PricingPlanRequest request)
+        [HttpPut]
+        public IActionResult UpdatePrice([FromBody] UpdatePricingRequest request)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var result = _pricingPlanService.UpdatePricing(request);
+                return Ok(result);
             }
-            var pricingPlan = _pricingPlanService.Update(id, request);
-            if (pricingPlan == null) return NotFound();
-            return Ok(pricingPlan);
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
         }
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

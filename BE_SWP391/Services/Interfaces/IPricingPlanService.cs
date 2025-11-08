@@ -8,7 +8,7 @@ namespace BE_SWP391.Services.Interfaces
         PricingPlanResponse? GetById(int id);
         IEnumerable<PricingPlanResponse> GetAll();
         PricingPlanResponse? Create(PricingPlanRequest request);
-        PricingPlanResponse? Update(int id, PricingPlanRequest request);
+        UpdatePricingResponse UpdatePricing(UpdatePricingRequest request);
         bool Delete(int id);
         ReportPricingStaffResponse GetReportPricingStaff(int userId);
         List<ListPricingResponse> GetListPricing(int userId);

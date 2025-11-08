@@ -1,4 +1,5 @@
 ﻿using BE_SWP391.Models;
+using BE_SWP391.Models.DTOs.Request;
 using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
 namespace BE_SWP391.Repositories.Interfaces
@@ -8,7 +9,7 @@ namespace BE_SWP391.Repositories.Interfaces
         PricingPlan? GetById(int id);
         IEnumerable<PricingPlan> GetAll();
         void Create(PricingPlan pricingPlan);
-        void Update(PricingPlan pricingPlan);
+        UpdatePricingResponse UpdatePricing(UpdatePricingRequest request);
         void Delete(PricingPlan pricingPlan);
         ReportPricingStaffResponse GetReportPricingStaff(int userId);
         List<ListPricingResponse> GetListPricing(int userId);
