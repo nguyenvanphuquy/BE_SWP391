@@ -126,5 +126,65 @@ namespace BE_SWP391.Repositories.Implementations
                         .ToList();
             return query;
         }
+        public ReportRevenueResponse GetRevenueReport(int userId)
+        {
+            var now = DateTime.Now;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1);
+            var startOfPrevMonth = startOfMonth.AddMonths(-1);
+            var endOfPrevMonth = startOfMonth.AddDays(-1);
+
+            var currentRevenue = _context.Transactions
+                .Where(t => t.Status == "completed" && t.TransactionDate >= startOfMonth && t.Invoice.UserId == userId).Sum(t => t.Amount);
+            var prevRevenue = _context.Transactions
+                            .Where(t => t.Status == "completed"
+                                     && t.TransactionDate >= startOfPrevMonth
+                                     && t.TransactionDate <= endOfPrevMonth
+                                     && t.Invoice.UserId == userId)
+                            .Sum(t => t.Amount) ?? 0;
+            var revenueGrowth = prevRevenue == 0 ? 100 : ((currentRevenue - prevRevenue) / prevRevenue) * 100;
+
+            var currentDownloads = _context.Downloads
+               .Count(d => d.Package.UserId == userId && d.DownloadDate >= startOfMonth);
+
+            var prevDownloads = _context.Downloads
+                .Count(d => d.Package.UserId == userId && d.DownloadDate >= startOfPrevMonth && d.DownloadDate <= endOfPrevMonth);
+
+            var downloadGrowth = prevDownloads == 0 ? 100 : ((currentDownloads - prevDownloads) / prevDownloads) * 100;
+
+
+            var totalBuyers = _context.Transactions
+                .Where(t => t.Status == "completed"
+                         && t.Invoice.UserId == userId)
+                .Select(t => t.Invoice.UserId)
+                .Distinct()
+                .Count();
+
+            var newBuyers = _context.Transactions
+                .Where(t => t.Status == "completed"
+                         && t.TransactionDate >= startOfMonth
+                         && t.Invoice.UserId == userId)
+                .Select(t => t.Invoice.UserId)
+                .Distinct()
+                .Count();
+
+
+            var totalTransactions = _context.Transactions
+                .Count(t => t.Status == "completed"
+                         && t.TransactionDate >= startOfMonth
+                         && t.Invoice.UserId == userId);
+
+            var avgTransactionValue = totalTransactions == 0 ? 0 : currentRevenue / totalTransactions;
+
+            return new ReportRevenueResponse
+            {
+                TotalRevenue = currentRevenue,
+                RevenueGrowth = revenueGrowth,
+                DownloadCount = currentDownloads,
+                DownloadGrowth = downloadGrowth,
+                BuyerCount = totalBuyers,
+                NewBuyer = newBuyers,
+                AverageRevenue = avgTransactionValue
+            };
+        }
     }
 }

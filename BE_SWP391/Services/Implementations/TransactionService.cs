@@ -277,6 +277,17 @@ namespace BE_SWP391.Services.Implementations
         {
             return _transactionRepository.GetReportTransaction();
         }
-
+        public List<TransactionNowResponse> GetTransactionNow(int userId)
+        {
+            return _transactionRepository.GetTransactionNow(userId);
+        }
+        public List<TopBuyerResponse> GetTopBuyer(int userId)
+        {
+            return _transactionRepository.GetTopBuyers(userId);
+        }
+        public List<DataRevenueResponse> GetDataRevenueByUser(int userId)
+        {
+            return _transactionRepository.GetDataRevenueByUser(userId);
+        }
     }
 }

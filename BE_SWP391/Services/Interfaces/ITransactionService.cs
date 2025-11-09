@@ -13,5 +13,8 @@ namespace BE_SWP391.Services.Interfaces
         string CreateTransaction(int userId, int[] cartIds, decimal totalAmount);
         bool HandleCallbackVnPay(IDictionary<string, string> query);
         bool HandleCallbackMomo(Dictionary<string, string> body);
+        List<TransactionNowResponse> GetTransactionNow(int userId);
+        List<TopBuyerResponse> GetTopBuyer(int userId);
+        List<DataRevenueResponse> GetDataRevenueByUser(int userId);
     }
 }

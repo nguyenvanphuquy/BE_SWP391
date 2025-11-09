@@ -13,5 +13,6 @@ namespace BE_SWP391.Repositories.Interfaces
         void Delete(PricingPlan pricingPlan);
         ReportPricingStaffResponse GetReportPricingStaff(int userId);
         List<ListPricingResponse> GetListPricing(int userId);
+        ReportRevenueResponse GetRevenueReport(int userId);
     }
 }

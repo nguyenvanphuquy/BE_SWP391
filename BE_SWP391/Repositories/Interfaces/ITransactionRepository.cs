@@ -16,5 +16,8 @@ namespace BE_SWP391.Repositories.Interfaces
         IEnumerable<Cart> GetCartsByIds(int[] ids);
         void RemoveCart(Cart c);
         void SaveChanges();
+        List<TransactionNowResponse> GetTransactionNow(int userId);
+        List<TopBuyerResponse> GetTopBuyers(int userId);
+        List<DataRevenueResponse> GetDataRevenueByUser(int userId);
     }
 }

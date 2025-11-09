@@ -60,5 +60,9 @@ namespace BE_SWP391.Services.Implementations
         {
             return _pricingPlanRepository.GetListPricing(userId);
         }
+        public ReportRevenueResponse GetRevenueReport(int userId)
+        {
+            return _pricingPlanRepository.GetRevenueReport(userId);
+        }
     }
 }

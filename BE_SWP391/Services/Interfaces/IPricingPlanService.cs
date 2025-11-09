@@ -12,5 +12,6 @@ namespace BE_SWP391.Services.Interfaces
         bool Delete(int id);
         ReportPricingStaffResponse GetReportPricingStaff(int userId);
         List<ListPricingResponse> GetListPricing(int userId);
+        ReportRevenueResponse GetRevenueReport(int userId);
     }
 }

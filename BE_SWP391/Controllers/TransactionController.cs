@@ -60,5 +60,23 @@ namespace BE_SWP391.Controllers
         {
             return Ok(_transactionService.GetReportTransaction());
         }
+        [HttpGet("RevenueStaff/Now/{userId}")]
+        public IActionResult GetTransactionNow(int userId)
+        {
+            var transactions = _transactionService.GetTransactionNow(userId);
+            return Ok(transactions);
+        }
+        [HttpGet("RevenueStaff/TopBuyer/{userId}")]
+        public IActionResult GetTopBuyers(int userId)
+        {
+            var topBuyers = _transactionService.GetTopBuyer(userId);
+            return Ok(topBuyers);
+        }
+        [HttpGet("RevenueStaff/DataRevenue/{userId}")]
+        public IActionResult GetDataRevenueByUser(int userId)
+        {
+            var dataRevenues = _transactionService.GetDataRevenueByUser(userId);
+            return Ok(dataRevenues);
+        }
     }
 }

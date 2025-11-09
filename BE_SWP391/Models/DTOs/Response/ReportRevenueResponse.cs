@@ -2,9 +2,13 @@
 {
     public class ReportRevenueResponse
     {
-        public int TotalRevenue { get; set; }
+        public decimal? TotalRevenue { get; set; }
+        public decimal? RevenueGrowth { get; set; }
+
         public int DownloadCount { get; set; }
+        public decimal? DownloadGrowth { get; set; }
         public int BuyerCount { get; set; }
-        public int AverageRevenue { get; set; }
+        public int NewBuyer { get; set; }
+        public decimal? AverageRevenue { get; set; }
     }
 }
