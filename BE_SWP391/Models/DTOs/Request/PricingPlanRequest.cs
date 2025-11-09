@@ -12,7 +12,7 @@
 
         public string? AccessType { get; set; }
 
-        public int PackageId { get; set; }
+        public string PackageName { get; set; } 
 
         public decimal? Discount { get; set; }
     }

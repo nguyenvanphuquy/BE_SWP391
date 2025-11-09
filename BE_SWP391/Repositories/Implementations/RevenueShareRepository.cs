@@ -50,5 +50,6 @@ namespace BE_SWP391.Repositories.Implementations
                            .ToList();
             return profit;
         }
+
     }
 }

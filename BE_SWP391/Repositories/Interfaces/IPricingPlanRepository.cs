@@ -8,7 +8,7 @@ namespace BE_SWP391.Repositories.Interfaces
     {
         PricingPlan? GetById(int id);
         IEnumerable<PricingPlan> GetAll();
-        void Create(PricingPlan pricingPlan);
+        PricingPlanResponse Create(PricingPlanRequest request);
         UpdatePricingResponse UpdatePricing(UpdatePricingRequest request);
         void Delete(PricingPlan pricingPlan);
         ReportPricingStaffResponse GetReportPricingStaff(int userId);

@@ -172,10 +172,10 @@ namespace BE_SWP391.Repositories.Implementations
             var orders = (from inv in _marketContext.Invoices
                           join u in _marketContext.Users on inv.UserId equals u.UserId
                           join t in _marketContext.Transactions on inv.InvoiceId equals t.InvoiceId into transGroup
-                          from t in transGroup.DefaultIfEmpty() // LEFT JOIN
+                          from t in transGroup.DefaultIfEmpty() 
                           join pm in _marketContext.PaymentMethods on t.TransactionId equals pm.TransactionId into payGroup
                           from pm in payGroup.DefaultIfEmpty()
-                          join pp in _marketContext.PricingPlans on t.TransactionId equals pp.TransactionId into planGroup
+                          join pp in _marketContext.PricingPlans on t.PlanId equals pp.PlanId into planGroup
                           from pp in planGroup.DefaultIfEmpty()
                           where inv.UserId == userId
                           group new { inv, t, pm, pp } by new
@@ -206,7 +206,7 @@ namespace BE_SWP391.Repositories.Implementations
                                from t in tGroup.DefaultIfEmpty()
                                join pm in _marketContext.PaymentMethods on t.TransactionId equals pm.TransactionId into pmGroup
                                from pm in pmGroup.DefaultIfEmpty()
-                               join pp in _marketContext.PricingPlans on t.TransactionId equals pp.TransactionId into ppGroup
+                               join pp in _marketContext.PricingPlans on t.PlanId equals pp.PlanId into ppGroup
                                from pp in ppGroup.DefaultIfEmpty()
                                join dp in _marketContext.DataPackages on pp.PackageId equals dp.PackageId into dpGroup
                                from dp in dpGroup.DefaultIfEmpty()

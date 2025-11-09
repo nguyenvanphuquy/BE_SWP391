@@ -145,6 +145,7 @@ namespace BE_SWP391.Repositories.Implementations
                         where dp.UserId == userId
                         select new UserDataResponse
                         {
+                            PackageId = dp.PackageId,
                             PackageName = dp.PackageName,
                             Description = dp.Description,
                             FileSize = mt.FileSize,
@@ -160,7 +161,7 @@ namespace BE_SWP391.Repositories.Implementations
             var data = (from inv in _context.Invoices 
                         join u in _context.Users on inv.UserId equals u.UserId
                         join t in _context.Transactions on inv.InvoiceId equals t.InvoiceId
-                        join pp in _context.PricingPlans on t.TransactionId equals pp.TransactionId
+                        join pp in _context.PricingPlans on t.PlanId equals pp.PlanId
                         join dp in _context.DataPackages on pp.PackageId equals dp.PackageId
                         join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
                         join d in _context.Downloads on dp.PackageId equals d.PackageId into dlGroup
@@ -187,7 +188,7 @@ namespace BE_SWP391.Repositories.Implementations
                 from inv in _context.Invoices
                 join u in _context.Users on inv.UserId equals u.UserId
                 join t in _context.Transactions on inv.InvoiceId equals t.InvoiceId
-                join pp in _context.PricingPlans on t.TransactionId equals pp.TransactionId
+                join pp in _context.PricingPlans on t.PlanId equals pp.PlanId
                 join dp in _context.DataPackages on pp.PackageId equals dp.PackageId
                 where inv.UserId == userId
                 select dp

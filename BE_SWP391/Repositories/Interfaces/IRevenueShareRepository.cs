@@ -11,5 +11,7 @@ namespace BE_SWP391.Repositories.Interfaces
         void Update(RevenueShare revenueShare);
         void Delete(RevenueShare revenueShare);
         List<ProfitResponse> GetProfit();
+
+
     }
 }

@@ -24,18 +24,7 @@ namespace BE_SWP391.Services.Implementations
         }
         public PricingPlanResponse? Create(PricingPlanRequest request)
         {
-            var pricingPlan = new PricingPlan
-            {
-                PlanName = request.PlanName,
-                Price = request.Price,
-                Currency = request.Currency,
-                Duration = request.Duration,
-                AccessType = request.AccessType,
-                PackageId = request.PackageId,
-                Discount = request.Discount
-            };
-            _pricingPlanRepository.Create(pricingPlan);
-            return ToResponse(pricingPlan);
+            return _pricingPlanRepository.Create(request);
         }
         public UpdatePricingResponse UpdatePricing(UpdatePricingRequest request)
         {

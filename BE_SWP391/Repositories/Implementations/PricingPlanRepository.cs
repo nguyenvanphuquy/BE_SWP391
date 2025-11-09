@@ -21,10 +21,41 @@ namespace BE_SWP391.Repositories.Implementations
         {
             return _context.PricingPlans.ToList();
         }
-        public void Create(PricingPlan pricingPlan)
+        public PricingPlanResponse Create(PricingPlanRequest request)
         {
+            var package = _context.DataPackages.FirstOrDefault(dp => dp.PackageName == request.PackageName);
+            if (package == null)
+            {
+                throw new Exception($"Không tìm thấy gói dữ liệu với tên: {request.PackageName}");
+            }
+            var existingPlan = _context.PricingPlans.FirstOrDefault(p => p.PackageId == package.PackageId);
+            if (existingPlan != null)
+            {
+                throw new Exception($"Gói dữ liệu '{request.PackageName}' đã có gói giá. Vui lòng chỉnh sửa thay vì tạo mới.");
+            }
+            var pricingPlan = new PricingPlan
+            {
+                PlanName = request.PlanName,
+                Price = request.Price,
+                Currency = request.Currency,
+                Duration = request.Duration,
+                AccessType = request.AccessType,
+                PackageId = package.PackageId,
+                Discount = request.Discount
+            };
             _context.PricingPlans.Add(pricingPlan);
             _context.SaveChanges();
+            return new PricingPlanResponse
+            {
+                PlanId = pricingPlan.PlanId,
+                PlanName = pricingPlan.PlanName,
+                Price = pricingPlan.Price,
+                Currency = pricingPlan.Currency,
+                Duration = pricingPlan.Duration,
+                AccessType = pricingPlan.AccessType,
+                PackageId = pricingPlan.PackageId,
+                Discount = pricingPlan.Discount
+            };
         }
         public UpdatePricingResponse UpdatePricing(UpdatePricingRequest request)
         {
