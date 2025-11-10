@@ -9,10 +9,11 @@ namespace BE_SWP391.Services.Interfaces
 
         List<RecentTransactionResponse> GetRecentTransactions(int count = 5);
         ReportTransactionResponse GetReportTransaction();
-        //PaymentCreateResponse CreatePayment(PaymentRequest request);
-        string CreateTransaction(int userId, int[] cartIds, decimal totalAmount);
+
+        PaymentCreateResponse CreatePaymentTransaction(PaymentRequest request);
         bool HandleCallbackVnPay(IDictionary<string, string> query);
-        bool HandleCallbackMomo(Dictionary<string, string> body);
+        bool HandleCallbackMomo(MomoCallbackRequest callback);
+        TransactionStatusResponse CheckTransactionStatus(int transactionId);
         List<TransactionNowResponse> GetTransactionNow(int userId);
         List<TopBuyerResponse> GetTopBuyer(int userId);
         List<DataRevenueResponse> GetDataRevenueByUser(int userId);

@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using BE_SWP391.Models.DTOs.Request;
+using BE_SWP391.Services.Implementations;
 using BE_SWP391.Services.Interfaces;
-using BE_SWP391.Models.DTOs.Request;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
+using System.Text;
+using System.Web;
 
 namespace BE_SWP391.Controllers
 {
@@ -15,16 +19,13 @@ namespace BE_SWP391.Controllers
             _transactionService = transactionService;
         }
 
-        [HttpPost("create")]
-        public IActionResult Create([FromBody] PaymentRequest request)
+        [HttpPost("create-payment")]
+        public IActionResult CreatePayment([FromBody] PaymentRequest request)
         {
             try
             {
-                var res = _transactionService.CreateTransaction(request.UserId,
-                    request.CartIds,
-                    request.Amount
-                );
-                return Ok(res);
+                var response = _transactionService.CreatePaymentTransaction(request);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -32,23 +33,33 @@ namespace BE_SWP391.Controllers
             }
         }
 
-        // VNPay return (GET)
+        // VNPay callback
         [HttpGet("callback/vnpay")]
         public IActionResult VnPayCallback()
         {
-            var query = Request.Query.ToDictionary(k => k.Key, v => v.Value.ToString());
-            var ok = _transactionService.HandleCallbackVnPay(query);
-            if (ok) return Ok("Payment success");
-            return BadRequest("Payment verify failed");
+            var query = Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString());
+            var success = _transactionService.HandleCallbackVnPay(query);
+
+            if (success)
+                return Redirect("/payment-success");
+            else
+                return Redirect("/payment-failed");
         }
 
-        // MoMo IPN (POST JSON)
+        // MoMo callback
         [HttpPost("callback/momo")]
-        public IActionResult MomoCallback([FromBody] Dictionary<string, string> body)
+        public IActionResult MomoCallback([FromBody] MomoCallbackRequest callback)
         {
-            var ok = _transactionService.HandleCallbackMomo(body);
-            if (ok) return Ok(new { result = "success" });
-            return BadRequest(new { result = "failed" });
+            var success = _transactionService.HandleCallbackMomo(callback);
+            return Ok(new { success });
+        }
+
+        // Kiểm tra trạng thái
+        [HttpGet("status/{transactionId}")]
+        public IActionResult CheckStatus(int transactionId)
+        {
+            var status = _transactionService.CheckTransactionStatus(transactionId);
+            return Ok(status);
         }
         [HttpGet("GetRecent")]
         public IActionResult GetRecentTransaction(int count = 5)
@@ -78,5 +89,50 @@ namespace BE_SWP391.Controllers
             var dataRevenues = _transactionService.GetDataRevenueByUser(userId);
             return Ok(dataRevenues);
         }
+
+        [HttpGet("test-simple-hmac")]
+        public IActionResult TestSimpleHmac()
+        {
+            try
+            {
+                var key = "YZHS0UI8HK7MT2J945YG0QO81U28MX1Z";
+                var message = "abc"; // Message cực kỳ đơn giản
+
+                var signature = HmacSHA512(key, message);
+
+                return Ok(new
+                {
+                    Message = message,
+                    Signature = signature,
+                    SignatureLength = signature.Length,
+                    Note = "Signature should be 128 characters for SHA512"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        public static string HmacSHA512(string key, string inputData)
+        {
+            var hash = new StringBuilder();
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] inputBytes = Encoding.UTF8.GetBytes(inputData);
+
+            using (var hmac = new HMACSHA512(keyBytes))
+            {
+                byte[] hashValue = hmac.ComputeHash(inputBytes);
+                foreach (var theByte in hashValue)
+                {
+                    hash.Append(theByte.ToString("x2")); // ✅ Dùng "x2"
+                }
+            }
+
+            return hash.ToString();
+        }
+
+
+
     }
 }

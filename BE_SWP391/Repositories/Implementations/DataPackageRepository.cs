@@ -98,6 +98,7 @@ namespace BE_SWP391.Repositories.Implementations
                         join u in _context.Users on dp.UserId equals u.UserId
                         join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
                         join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
+                        where dp.Status == "Approved" 
                         select new AllPackageResponse
                         {
                             PrincingPlanId = pp.PlanId,
