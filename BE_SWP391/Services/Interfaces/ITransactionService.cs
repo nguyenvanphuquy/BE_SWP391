@@ -11,7 +11,7 @@ namespace BE_SWP391.Services.Interfaces
         ReportTransactionResponse GetReportTransaction();
 
         PaymentCreateResponse CreatePaymentTransaction(PaymentRequest request);
-        bool HandleCallbackVnPay(IDictionary<string, string> query);
+        bool HandleCallbackVnPay(string queryString);
         bool HandleCallbackMomo(MomoCallbackRequest callback);
         TransactionStatusResponse CheckTransactionStatus(int transactionId);
         List<TransactionNowResponse> GetTransactionNow(int userId);

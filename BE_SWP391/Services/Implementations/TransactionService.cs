@@ -19,7 +19,7 @@ namespace BE_SWP391.Services.Implementations
         private readonly EvMarketContext _context;
         private readonly IConfiguration _config;
         private readonly HttpClient _http = new HttpClient();
-
+        private readonly ILogger<TransactionService> _logger;
         // config values
         private readonly string vnp_TmnCode;
         private readonly string vnp_HashSecret;
@@ -33,11 +33,12 @@ namespace BE_SWP391.Services.Implementations
         private readonly string momo_IpnUrl;
         private readonly string momo_RedirectUrl;
 
-        public TransactionService(ITransactionRepository transactionRepository, IConfiguration config, EvMarketContext context)
+        public TransactionService(ITransactionRepository transactionRepository, IConfiguration config, EvMarketContext context, ILogger<TransactionService> logger)
         {
             _transactionRepository = transactionRepository;
             _config = config;
             _context = context;
+            _logger = logger;
 
             var vn = _config.GetSection("Payment:VnPay");
             vnp_TmnCode = vn["TmnCode"];
@@ -159,161 +160,182 @@ namespace BE_SWP391.Services.Implementations
         }
 
 
-        public string CreateVnPayUrl(List<Cart> carts, Invoice invoice, PaymentRequest req)
+        private string CreateVnPayUrl(List<Cart> carts, Invoice invoice, PaymentRequest req)
         {
-
             var totalAmount = (long)(invoice.TotalAmount * 100);
-            var vnp_TxnRef = invoice.InvoiceId.ToString();
+            var vnp_OrderId = invoice.InvoiceId.ToString();
             var vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
             var vnp_ExpireDate = DateTime.Now.AddMinutes(15).ToString("yyyyMMddHHmmss");
-            var orderInfo = $"Thanh toan hoa don #{vnp_TxnRef}";
+
+            var orderInfo = "Invoice" + vnp_OrderId;
+
+            // ✅ THỬ: ReturnUrl KHÔNG encode trong raw hash
+            var returnUrl = "https://bivalvular-untactfully-lili.ngrok-free.dev/api/Transaction/callback/vnpay";
+
             var vnp_Params = new SortedDictionary<string, string>(StringComparer.Ordinal)
-    {
-        { "vnp_Version", "2.1.0" },
-        { "vnp_Command", "pay" },
-        { "vnp_TmnCode", vnp_TmnCode },
-        { "vnp_Amount", totalAmount.ToString() },
-        { "vnp_CreateDate", vnp_CreateDate },
-        { "vnp_CurrCode", "VND" },
-        { "vnp_IpAddr", "127.0.0.1" },
-        { "vnp_Locale", "vn" },
-        { "vnp_OrderInfo", orderInfo },
-        { "vnp_OrderType", "other" },
-        { "vnp_ReturnUrl", vnp_Returnurl },
-        { "vnp_TxnRef", vnp_TxnRef },
-        { "vnp_ExpireDate", vnp_ExpireDate }
-    };
+            {
+                ["vnp_Version"] = "2.1.0",
+                ["vnp_Command"] = "pay",
+                ["vnp_TmnCode"] = vnp_TmnCode,
+                ["vnp_Amount"] = totalAmount.ToString(),
+                ["vnp_CreateDate"] = vnp_CreateDate,
+                ["vnp_CurrCode"] = "VND",
+                ["vnp_IpAddr"] = "127.0.0.1",
+                ["vnp_Locale"] = "vn",
+                ["vnp_OrderInfo"] = orderInfo,
+                ["vnp_OrderType"] = "other",
+                ["vnp_ReturnUrl"] = returnUrl, // ✅ Dùng URL gốc, không encode
+                ["vnp_TxnRef"] = vnp_OrderId,
+                ["vnp_ExpireDate"] = vnp_ExpireDate
+            };
 
-            var rawData = string.Join("&", vnp_Params.Select(kv => $"{kv.Key}={kv.Value}"));
+            var rawHash = string.Join("&", vnp_Params.Select(kv => $"{kv.Key}={kv.Value}"));
 
-            var vnp_SecureHash = HmacSHA512(vnp_HashSecret, rawData);
+            _logger.LogInformation("=== VNPAY DEBUG ===");
+            _logger.LogInformation("Raw Hash: {RawHash}", rawHash);
+
+            var signature = HmacSHA512(vnp_HashSecret, rawHash);
+
+            _logger.LogInformation("Signature: {Signature}", signature);
+            _logger.LogInformation("=== END DEBUG ===");
+
+            // ✅ URL final: VẪN encode các parameter
             var queryString = string.Join("&", vnp_Params.Select(kv =>
                 $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}"));
 
-            var paymentUrl = $"{vnp_Url}?{queryString}&vnp_SecureHash={vnp_SecureHash}";
-
-            // 5️⃣ Log ra console để debug khi cần
-            Console.WriteLine("===== VNPay Debug =====");
-            Console.WriteLine("RawData: " + rawData);
-            Console.WriteLine("SecureHash: " + vnp_SecureHash);
-            Console.WriteLine("Final URL: " + paymentUrl);
-            Console.WriteLine("=======================");
+            var paymentUrl = $"{vnp_Url}?{queryString}&vnp_SecureHash={signature}";
 
             return paymentUrl;
         }
-        public bool HandleCallbackVnPay(IDictionary<string, string> query)
+
+        public bool HandleCallbackVnPay(string queryString)
         {
+            _logger.LogInformation("Handling VNPay callback");
+
+            if (string.IsNullOrEmpty(queryString))
+            {
+                _logger.LogWarning("Query string is empty.");
+                return false;
+            }
+
+            // ✅ Loại bỏ dấu '?' nếu có
+            if (queryString.StartsWith("?"))
+                queryString = queryString.Substring(1);
+
+            // ✅ QUAN TRỌNG: Parse query string và giữ nguyên giá trị chưa decode
+            var queryParams = new Dictionary<string, string>();
+
+            foreach (var pair in queryString.Split('&'))
+            {
+                var parts = pair.Split('=');
+                if (parts.Length == 2)
+                {
+                    // ✅ GIỮ NGUYÊN giá trị chưa decode để tính chữ ký
+                    queryParams[parts[0]] = parts[1];
+                }
+            }
+
+            if (!queryParams.ContainsKey("vnp_SecureHash"))
+            {
+                _logger.LogWarning("Missing vnp_SecureHash.");
+                return false;
+            }
+
+            var receivedHash = queryParams["vnp_SecureHash"];
+
+            // ✅ Lấy tất cả key vnp_ trừ vnp_SecureHash và vnp_SecureHashType
+            var keys = queryParams.Keys
+                .Where(k => k.StartsWith("vnp_") && k != "vnp_SecureHash" && k != "vnp_SecureHashType")
+                .OrderBy(k => k, StringComparer.Ordinal)
+                .ToList();
+
+            // ✅ Tạo rawData với giá trị CHƯA DECODE (quan trọng!)
+            var rawData = string.Join("&", keys.Select(k => $"{k}={queryParams[k]}"));
+
+            var computedHash = HmacSHA512(vnp_HashSecret, rawData);
+
+            _logger.LogDebug("VNPay Callback - RawData: {RawData}", rawData);
+            _logger.LogDebug("Computed Hash: {Computed}", computedHash);
+            _logger.LogDebug("Received Hash: {Received}", receivedHash);
+
+            // ✅ So sánh chữ ký
+            if (!computedHash.Equals(receivedHash, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogError("VNPay signature mismatch.");
+                return false;
+            }
+
+            // ✅ Chữ ký hợp lệ, xử lý giao dịch
+            var txnRef = HttpUtility.UrlDecode(queryParams["vnp_TxnRef"]);
+            var responseCode = HttpUtility.UrlDecode(queryParams["vnp_ResponseCode"]);
+
+            using var dbTransaction = _context.Database.BeginTransaction();
             try
             {
-                if (query == null || !query.Any())
-                {
-                    Console.WriteLine("⚠️ Callback rỗng hoặc thiếu dữ liệu");
-                    return false;
-                }
-
-                if (!query.ContainsKey("vnp_SecureHash"))
-                {
-                    Console.WriteLine("⚠️ Thiếu vnp_SecureHash");
-                    return false;
-                }
-
-                var secureHash = query["vnp_SecureHash"];
-
-                // ✅ Chỉ lấy các key bắt đầu bằng vnp_ (trừ hash)
-                var keys = query.Keys
-                    .Where(k => k.StartsWith("vnp_") && k != "vnp_SecureHash" && k != "vnp_SecureHashType")
-                    .OrderBy(k => k, StringComparer.Ordinal)
-                    .ToList();
-
-                // ✅ KHÔNG UrlDecode vì ASP.NET đã decode sẵn
-                var rawData = string.Join("&", keys.Select(k => $"{k}={query[k]}"));
-
-                // ✅ Tính lại hash
-                var computedHash = HmacSHA512(vnp_HashSecret, rawData);
-
-                // ✅ Log để debug
-                Console.WriteLine("===== VNPay Callback Debug =====");
-                Console.WriteLine("RawData: " + rawData);
-                Console.WriteLine("Computed: " + computedHash);
-                Console.WriteLine("Received: " + secureHash);
-                Console.WriteLine("===============================");
-
-                // ✅ So sánh chữ ký
-                if (!string.Equals(computedHash, secureHash, StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine("❌ Sai chữ ký VNPay callback");
-                    return false;
-                }
-
-                // ✅ Nếu chữ ký đúng → xử lý tiếp
-                if (!query.ContainsKey("vnp_TxnRef"))
-                    return false;
-
-                int invoiceId = int.Parse(query["vnp_TxnRef"]);
-                var responseCode = query.ContainsKey("vnp_ResponseCode") ? query["vnp_ResponseCode"] : "99";
-                var transactionStatus = query.ContainsKey("vnp_TransactionStatus") ? query["vnp_TransactionStatus"] : "99";
+                // ✅ TxnRef là InvoiceId, không phải TransactionId
+                var invoiceId = int.Parse(txnRef);
 
                 var transactions = _context.Transactions
                     .Include(t => t.Invoice)
                     .Where(t => t.InvoiceId == invoiceId)
                     .ToList();
 
-                if (!transactions.Any())
+                if (transactions == null || !transactions.Any())
                 {
-                    Console.WriteLine($"⚠️ Không tìm thấy transactions cho Invoice #{invoiceId}");
+                    _logger.LogWarning("Transaction not found for InvoiceId: {InvoiceId}", invoiceId);
                     return false;
                 }
 
-                var invoice = transactions.First().Invoice;
-                if (invoice == null)
-                    return false;
-
-                if (responseCode == "00" && transactionStatus == "00")
+                if (responseCode == "00")  // ✅ Thành công
                 {
-                    foreach (var t in transactions)
+                    foreach (var transaction in transactions)
                     {
-                        t.Status = "completed";
-                        t.TransactionDate = DateTime.UtcNow;
+                        transaction.Status = "completed";
+                        transaction.TransactionDate = DateTime.UtcNow;
                     }
 
-                    invoice.DueDate = DateOnly.FromDateTime(DateTime.UtcNow);
-
-                    var planIdsLinkedToInvoice = transactions.Select(t => t.PlanId).ToList();
-                    var cartsToUpdate = _context.Carts
-                        .Where(c => c.UserId == invoice.UserId
-                                 && c.Status == "pending"
-                                 && planIdsLinkedToInvoice.Contains(c.PlanId))
-                        .ToList();
-
-                    foreach (var cart in cartsToUpdate)
+                    // ✅ Cập nhật Invoice
+                    var invoice = transactions.First().Invoice;
+                    if (invoice != null)
                     {
-                        cart.Status = "paid";
-                        cart.UpdatedAt = DateTime.UtcNow;
-                    }
+                        invoice.DueDate = DateOnly.FromDateTime(DateTime.UtcNow);
 
-                    _context.SaveChanges();
-                    Console.WriteLine($"✅ VNPay thanh toán thành công cho Invoice #{invoiceId}");
-                    return true;
+                        // ✅ Cập nhật cart status
+                        var carts = _context.Carts
+                            .Where(c => c.UserId == invoice.UserId && c.Status == "pending")
+                            .ToList();
+
+                        foreach (var cart in carts)
+                        {
+                            cart.Status = "paid";
+                            cart.UpdatedAt = DateTime.UtcNow;
+                        }
+                    }
                 }
                 else
                 {
+                    // ✅ Thất bại
                     foreach (var transaction in transactions)
                     {
                         transaction.Status = "failed";
                     }
-
-                    _context.SaveChanges();
-                    Console.WriteLine($"❌ VNPay thanh toán thất bại: ResponseCode={responseCode}");
-                    return false;
                 }
+
+                _context.SaveChanges();
+                dbTransaction.Commit();
+
+                _logger.LogInformation("VNPay callback processed successfully for InvoiceId: {InvoiceId}, Status: {Status}",
+                    invoiceId, responseCode == "00" ? "Success" : "Failed");
+
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Lỗi xử lý VNPay callback: {ex.Message}");
+                dbTransaction.Rollback();
+                _logger.LogError(ex, "Error processing VNPay callback");
                 return false;
             }
         }
-
         private MomoPaymentResponse CreateMomoPaymentUrl(List<Cart> carts, Invoice invoice, PaymentRequest req)
         {
             try
