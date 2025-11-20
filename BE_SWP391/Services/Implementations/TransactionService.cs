@@ -166,11 +166,11 @@ namespace BE_SWP391.Services.Implementations
             var vnp_OrderId = invoice.InvoiceId.ToString();
             var vnp_CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
             var vnp_ExpireDate = DateTime.Now.AddMinutes(15).ToString("yyyyMMddHHmmss");
-
             var orderInfo = "Invoice" + vnp_OrderId;
 
-            // ✅ THỬ: ReturnUrl KHÔNG encode trong raw hash
-            var returnUrl = "https://bivalvular-untactfully-lili.ngrok-free.dev/api/Transaction/callback/vnpay";
+            // ✅ ĐÚNG: Encode URL từ appsettings hoặc hardcode
+            var returnUrl = Uri.EscapeDataString(vnp_Returnurl);
+            // Hoặc: var returnUrl = Uri.EscapeDataString("https://bivalvular-untactfully-lili.ngrok-free.dev/api/Transaction/callback/vnpay");
 
             var vnp_Params = new SortedDictionary<string, string>(StringComparer.Ordinal)
             {
@@ -184,11 +184,12 @@ namespace BE_SWP391.Services.Implementations
                 ["vnp_Locale"] = "vn",
                 ["vnp_OrderInfo"] = orderInfo,
                 ["vnp_OrderType"] = "other",
-                ["vnp_ReturnUrl"] = returnUrl, // ✅ Dùng URL gốc, không encode
+                ["vnp_ReturnUrl"] = returnUrl, // ✅ Đã encode
                 ["vnp_TxnRef"] = vnp_OrderId,
                 ["vnp_ExpireDate"] = vnp_ExpireDate
             };
 
+            // ✅ rawHash giờ có URL đã encode
             var rawHash = string.Join("&", vnp_Params.Select(kv => $"{kv.Key}={kv.Value}"));
 
             _logger.LogInformation("=== VNPAY DEBUG ===");
@@ -199,9 +200,8 @@ namespace BE_SWP391.Services.Implementations
             _logger.LogInformation("Signature: {Signature}", signature);
             _logger.LogInformation("=== END DEBUG ===");
 
-            // ✅ URL final: VẪN encode các parameter
-            var queryString = string.Join("&", vnp_Params.Select(kv =>
-                $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}"));
+            // ✅ ĐÚNG: Không encode lần 2 vì đã encode rồi
+            var queryString = string.Join("&", vnp_Params.Select(kv => $"{kv.Key}={kv.Value}"));
 
             var paymentUrl = $"{vnp_Url}?{queryString}&vnp_SecureHash={signature}";
 
