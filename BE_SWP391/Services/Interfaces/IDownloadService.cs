@@ -1,15 +1,20 @@
-﻿using BE_SWP391.Models.DTOs.Response;
+﻿using BE_SWP391.Models.DTOs.Common;
 using BE_SWP391.Models.DTOs.Request;
+using BE_SWP391.Models.DTOs.Response;
 
 namespace BE_SWP391.Services.Interfaces
 {
     public interface IDownloadService
     {
-        DownloadResponse? GetById(int id);
+        DownloadResponse GetById(int id);
         IEnumerable<DownloadResponse> GetAll();
-        DownloadResponse Creater(DownloadRequest request);
-        DownloadResponse? Update(int id, DownloadRequest request);
+        IEnumerable<DownloadResponse> GetDownloadsByPackageId(int packageId);
+        DownloadResponse Create(DownloadRequest request);
+        DownloadResponse CreateWithFileUpload(CreateDownloadWithFileRequest request);
+        DownloadResponse Update(int id, DownloadRequest request);
+        DownloadResponse UpdateWithFile(int id, UpdateDownloadWithFileRequest request);
         bool Delete(int id);
+        FileDownloadResult DownloadFile(int downloadId);
 
     }
 }

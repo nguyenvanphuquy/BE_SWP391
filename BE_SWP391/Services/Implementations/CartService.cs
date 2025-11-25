@@ -1,5 +1,7 @@
 ﻿using BE_SWP391.Models.DTOs.Request;
 using BE_SWP391.Models.DTOs.Response;
+using BE_SWP391.Models.Entities;
+using BE_SWP391.Repositories.Implementations;
 using BE_SWP391.Repositories.Interfaces;
 using BE_SWP391.Services.Interfaces;
 
@@ -19,6 +21,19 @@ namespace BE_SWP391.Services.Implementations
         public List<CartResponse> GetList(int userId)
         {
             return _repository.GetList(userId);
+        }
+        public bool UpdateQuantity(int cartId, int quantity)
+        {
+            return _repository.UpdateQuantity(cartId, quantity);
+        }
+
+        public bool Delete(int cartId)
+        {
+            var cart = _repository.GetById(cartId);
+            if (cart == null) return false;
+
+            _repository.Delete(cartId);
+            return true;
         }
     }
 }

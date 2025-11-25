@@ -25,5 +25,29 @@ namespace BE_SWP391.Controllers
         {
             return Ok(_cartService.GetList(userId));
         }
+        // Update quantity
+        [HttpPut("update-quantity")]
+        public IActionResult UpdateQuantity([FromBody] UpdateCartQuantityRequest request)
+        {
+            var result = _cartService.UpdateQuantity(request.CartId, request.Quantity);
+
+            if (!result)
+                return NotFound(new { message = "Không tìm thấy cart item!" });
+
+            return Ok(new { message = "Cập nhật số lượng thành công!" });
+        }
+
+        // Delete item
+        [HttpDelete("delete/{cartId}")]
+        public IActionResult Delete(int cartId)
+        {
+            var result = _cartService.Delete(cartId);
+
+            if (!result)
+                return NotFound(new { message = "Không tìm thấy cart item!" });
+
+            return Ok(new { message = "Xóa cart item thành công!" });
+        }
     }
 }
+
