@@ -176,6 +176,7 @@ namespace BE_SWP391.Repositories.Implementations
                         where inv.UserId == userId
                         select new DataForUserResponse
                         {
+                            TransactionId = t.TransactionId,
                             PackageId = dp.PackageId,
                             PackageName = dp.PackageName,
                             ProviderName = u.FullName,
