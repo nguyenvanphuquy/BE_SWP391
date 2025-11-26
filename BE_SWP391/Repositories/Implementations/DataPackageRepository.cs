@@ -169,10 +169,14 @@ namespace BE_SWP391.Repositories.Implementations
             // Bước 1: Lấy packages đã mua
             var purchasedPackages = (from inv in _context.Invoices
                                      join t in _context.Transactions on inv.InvoiceId equals t.InvoiceId
-                                     join pp in _context.PricingPlans on t.PlanId equals pp.PlanId
-                                     join dp in _context.DataPackages on pp.PackageId equals dp.PackageId
-                                     join u in _context.Users on dp.UserId equals u.UserId
-                                     join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
+                                     join pp in _context.PricingPlans on t.PlanId equals pp.PlanId into ppGroup
+                                        from pp in ppGroup.DefaultIfEmpty()
+                                     join dp in _context.DataPackages on pp.PackageId equals dp.PackageId into dpGroup
+                                        from dp in dpGroup.DefaultIfEmpty()
+                                     join u in _context.Users on dp.UserId equals u.UserId into uGroup
+                                        from u in uGroup.DefaultIfEmpty()
+                                     join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId into mtGroup
+                                        from mt in mtGroup.DefaultIfEmpty()
                                      where inv.UserId == userId && t.Status == "completed"
                                      select new
                                      {
