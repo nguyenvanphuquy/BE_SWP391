@@ -10,6 +10,6 @@ namespace BE_SWP391.Models.DTOs.Response
         public long? FileSize { get; set; }
         public string status { get; set; }
         public decimal DownloadCount { get; set; }
-        public decimal RevenueCount { get; set; }
+        public decimal Price { get; set; }
     }
 }

@@ -142,7 +142,7 @@ namespace BE_SWP391.Repositories.Implementations
         {
             var data = (from dp in _context.DataPackages
                         join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
-                        //from plan in planGroup.DefaultIfEmpty()
+                        join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId 
                         where dp.UserId == userId
                         select new UserDataResponse
                         {
@@ -152,7 +152,8 @@ namespace BE_SWP391.Repositories.Implementations
                             FileSize = mt.FileSize,
                             status = dp.Status,
                             DownloadCount = _context.Downloads.Count(i => i.PackageId == dp.PackageId),
-                            RevenueCount = _context.RevenueShares.Sum(j => j.Amount)
+                            Price = pp.Price,
+
                         }
                         ).ToList();
             return data;
