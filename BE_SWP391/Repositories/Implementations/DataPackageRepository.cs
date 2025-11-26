@@ -1,4 +1,5 @@
 ﻿using BE_SWP391.Data;
+using BE_SWP391.Models.DTOs.Common;
 using BE_SWP391.Models.DTOs.Response;
 using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
@@ -165,30 +166,90 @@ namespace BE_SWP391.Repositories.Implementations
         }
         public List<DataForUserResponse> GetDataForUser(int userId)
         {
-            var data = (from inv in _context.Invoices 
-                        join u in _context.Users on inv.UserId equals u.UserId
-                        join t in _context.Transactions on inv.InvoiceId equals t.InvoiceId
-                        join pp in _context.PricingPlans on t.PlanId equals pp.PlanId
-                        join dp in _context.DataPackages on pp.PackageId equals dp.PackageId
-                        join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
-                        join d in _context.Downloads on dp.PackageId equals d.PackageId into dlGroup
-                        from d in dlGroup.DefaultIfEmpty()
-                        where inv.UserId == userId
-                        select new DataForUserResponse
-                        {
-                            TransactionId = t.TransactionId,
-                            PackageId = dp.PackageId,
-                            PackageName = dp.PackageName,
-                            ProviderName = u.FullName,
-                            PurchaseDate = t.TransactionDate,
-                            FileFormat = mt.FileFormat,
-                            FileSize = mt.FileSize,
-                            DownloadCount = d.DownloadCount,
-                            Status = d.Status,
+            // Bước 1: Lấy packages đã mua
+            var purchasedPackages = (from inv in _context.Invoices
+                                     join t in _context.Transactions on inv.InvoiceId equals t.InvoiceId
+                                     join pp in _context.PricingPlans on t.PlanId equals pp.PlanId
+                                     join dp in _context.DataPackages on pp.PackageId equals dp.PackageId
+                                     join u in _context.Users on dp.UserId equals u.UserId
+                                     join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
+                                     where inv.UserId == userId && t.Status == "completed"
+                                     select new
+                                     {
+                                         t.TransactionId,
+                                         dp.PackageId,
+                                         dp.PackageName,
+                                         ProviderName = u.FullName,
+                                         t.TransactionDate,
+                                         mt.FileFormat,
+                                         mt.FileSize
+                                     })
+                                    .Distinct()
+                                    .ToList();
 
-                        })
-                        .ToList();
-            return data;
+            var packageIds = purchasedPackages.Select(p => p.PackageId).ToList();
+
+            var allDownloads = _context.Downloads
+                .Where(d => packageIds.Contains(d.PackageId))
+                .OrderByDescending(d => d.DownloadDate)
+                .Select(d => new DownloadInfo 
+                {
+                    DownloadId = d.DownloadId,
+                    DownloadDate = d.DownloadDate,
+                    FileUrl = d.FileUrl,
+                    FileName = System.IO.Path.GetFileName(d.FileUrl),
+                    Status = d.Status,
+                    DownloadCount = d.DownloadCount,
+                    PackageId = d.PackageId
+                })
+                .ToList();
+
+            // Bước 3: Nhóm downloads theo package
+            var downloadsByPackage = allDownloads
+                .GroupBy(d => d.PackageId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // Bước 4: Kết hợp dữ liệu
+            var result = purchasedPackages.Select(p =>
+            {
+                // 🎯 FIX LỖI 1: Dùng TryGetValue thay vì ContainsKey + indexer
+                if (downloadsByPackage.TryGetValue(p.PackageId, out var downloads))
+                {
+                    return new DataForUserResponse
+                    {
+                        TransactionId = p.TransactionId,
+                        PackageId = p.PackageId,
+                        PackageName = p.PackageName,
+                        ProviderName = p.ProviderName,
+                        PurchaseDate = p.TransactionDate,
+                        FileFormat = p.FileFormat,
+                        FileSize = p.FileSize,
+                        TotalDownloads = downloads.Count,
+                        LatestDownloadDate = downloads.Any() ? downloads.Max(d => d.DownloadDate) : (DateTime?)null,
+                        Status = "Purchased",
+                        Downloads = downloads
+                    };
+                }
+                else
+                {
+                    return new DataForUserResponse
+                    {
+                        TransactionId = p.TransactionId,
+                        PackageId = p.PackageId,
+                        PackageName = p.PackageName,
+                        ProviderName = p.ProviderName,
+                        PurchaseDate = p.TransactionDate,
+                        FileFormat = p.FileFormat,
+                        FileSize = p.FileSize,
+                        TotalDownloads = 0,
+                        LatestDownloadDate = null, 
+                        Status = "Purchased",
+                        Downloads = new List<DownloadInfo>()
+                    };
+                }
+            }).ToList();
+
+            return result;
         }
         public ReportOrderResponse GetReportOrder(int userId)
         {
