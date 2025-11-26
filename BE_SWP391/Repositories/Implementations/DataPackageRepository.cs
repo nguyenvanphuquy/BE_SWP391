@@ -99,7 +99,7 @@ namespace BE_SWP391.Repositories.Implementations
                         join u in _context.Users on dp.UserId equals u.UserId
                         join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
                         join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
-                        where dp.Status == "Approved" 
+                        where dp.Status == "Approved"
                         select new AllPackageResponse
                         {
                             PrincingPlanId = pp.PlanId,
@@ -142,7 +142,7 @@ namespace BE_SWP391.Repositories.Implementations
         public List<UserDataResponse> GetUserDataByUserId(int userId)
         {
             var data = (from dp in _context.DataPackages
-                        join sc in _context.SubCategorys on dp.SubcategoryId equals sc.SubcategoryId 
+                        join sc in _context.SubCategorys on dp.SubcategoryId equals sc.SubcategoryId
                         join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId into metadataGroup
                         from mt in metadataGroup.DefaultIfEmpty()
                         join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId into pricingGroup
@@ -166,17 +166,16 @@ namespace BE_SWP391.Repositories.Implementations
         }
         public List<DataForUserResponse> GetDataForUser(int userId)
         {
-            // Bước 1: Lấy packages đã mua
             var purchasedPackages = (from inv in _context.Invoices
                                      join t in _context.Transactions on inv.InvoiceId equals t.InvoiceId
                                      join pp in _context.PricingPlans on t.PlanId equals pp.PlanId into ppGroup
-                                        from pp in ppGroup.DefaultIfEmpty()
+                                     from pp in ppGroup.DefaultIfEmpty()
                                      join dp in _context.DataPackages on pp.PackageId equals dp.PackageId into dpGroup
-                                        from dp in dpGroup.DefaultIfEmpty()
+                                     from dp in dpGroup.DefaultIfEmpty()
                                      join u in _context.Users on dp.UserId equals u.UserId into uGroup
-                                        from u in uGroup.DefaultIfEmpty()
+                                     from u in uGroup.DefaultIfEmpty()
                                      join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId into mtGroup
-                                        from mt in mtGroup.DefaultIfEmpty()
+                                     from mt in mtGroup.DefaultIfEmpty()
                                      where inv.UserId == userId && t.Status == "completed"
                                      select new
                                      {
@@ -196,7 +195,7 @@ namespace BE_SWP391.Repositories.Implementations
             var allDownloads = _context.Downloads
                 .Where(d => packageIds.Contains(d.PackageId))
                 .OrderByDescending(d => d.DownloadDate)
-                .Select(d => new DownloadInfo 
+                .Select(d => new DownloadInfo
                 {
                     DownloadId = d.DownloadId,
                     DownloadDate = d.DownloadDate,
@@ -208,15 +207,12 @@ namespace BE_SWP391.Repositories.Implementations
                 })
                 .ToList();
 
-            // Bước 3: Nhóm downloads theo package
             var downloadsByPackage = allDownloads
                 .GroupBy(d => d.PackageId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            // Bước 4: Kết hợp dữ liệu
             var result = purchasedPackages.Select(p =>
             {
-                // 🎯 FIX LỖI 1: Dùng TryGetValue thay vì ContainsKey + indexer
                 if (downloadsByPackage.TryGetValue(p.PackageId, out var downloads))
                 {
                     return new DataForUserResponse
@@ -246,7 +242,7 @@ namespace BE_SWP391.Repositories.Implementations
                         FileFormat = p.FileFormat,
                         FileSize = p.FileSize,
                         TotalDownloads = 0,
-                        LatestDownloadDate = null, 
+                        LatestDownloadDate = null,
                         Status = "Purchased",
                         Downloads = new List<DownloadInfo>()
                     };
@@ -295,6 +291,54 @@ namespace BE_SWP391.Repositories.Implementations
                 ActiveCount = activeCount,
                 ExpiredCount = expiredCount
             };
+        }
+        public PackageDetailResponse GetPackageDetails(int packageId)
+        {
+            var packageDetail = (from dp in _context.DataPackages
+                                 join u in _context.Users on dp.UserId equals u.UserId
+                                 join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
+                                 join sc in _context.SubCategorys on dp.SubcategoryId equals sc.SubcategoryId
+                                 join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId
+                                 where dp.PackageId == packageId
+                                 select new PackageDetailResponse
+                                 {
+                                     PackageName = dp.PackageName,
+                                     ProviderName = u.FullName,
+                                     SubCategoryName = sc.SubcategoryName,
+                                     FileSize = mt.FileSize,
+                                     Price = pp.Price,
+                                     Duration = pp.Duration,
+                                     FileCount = _context.Downloads.Count(d => d.PackageId == dp.PackageId),
+                                     Status = dp.Status,
+                                     ReleaseDate = dp.ReleaseDate,
+                                     PackageId = dp.PackageId
+                                 })
+                                .FirstOrDefault();
+
+            if (packageDetail == null)
+            {
+                return null;
+            }
+
+            // Lấy danh sách downloads cho package này
+            var downloads = _context.Downloads
+                .Where(d => d.PackageId == packageId)
+                .OrderByDescending(d => d.DownloadDate)
+                .Select(d => new DownloadInfo
+                {
+                    DownloadId = d.DownloadId,
+                    DownloadDate = d.DownloadDate,
+                    FileUrl = d.FileUrl,
+                    FileName = System.IO.Path.GetFileName(d.FileUrl),
+                    Status = d.Status,
+                    DownloadCount = d.DownloadCount,
+                    PackageId = d.PackageId
+                })
+                .ToList();
+
+            packageDetail.Downloads = downloads;
+
+            return packageDetail;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace BE_SWP391.Services.Interfaces
         DownloadResponse Update(int id, DownloadRequest request);
         DownloadResponse UpdateWithFile(int id, UpdateDownloadWithFileRequest request);
         bool Delete(int id);
-        FileDownloadResult DownloadFile(int downloadId);
+        FileDownloadResult DownloadFile(int downloadId, int roleId);
 
     }
 }

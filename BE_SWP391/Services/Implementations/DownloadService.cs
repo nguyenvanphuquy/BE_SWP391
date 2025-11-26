@@ -12,15 +12,19 @@ namespace BE_SWP391.Services.Implementations
         private readonly IDownloadRepository _downloadRepository;
         private readonly IDataPackageRepository _packageRepository;
         private readonly IFileService _fileService;
+        private readonly IUserRepository _userRepository;
 
         public DownloadService(
             IDownloadRepository downloadRepository,
             IDataPackageRepository packageRepository,
-            IFileService fileService)
+            IFileService fileService,
+            IUserRepository userRepository)
+
         {
             _downloadRepository = downloadRepository;
             _packageRepository = packageRepository;
             _fileService = fileService;
+            _userRepository = userRepository;
         }
 
         public DownloadResponse GetById(int id)
@@ -128,7 +132,7 @@ namespace BE_SWP391.Services.Implementations
             return true;
         }
 
-        public FileDownloadResult DownloadFile(int downloadId)
+        public FileDownloadResult DownloadFile(int downloadId, int roleId)
         {
             var download = _downloadRepository.GetById(downloadId);
             if (download == null)
@@ -137,11 +141,12 @@ namespace BE_SWP391.Services.Implementations
             if (string.IsNullOrEmpty(download.FileUrl))
                 throw new FileNotFoundException("File không tồn tại");
 
-            // Tăng download count
-            download.DownloadCount++;
-            _downloadRepository.Update(download);
+            if (roleId == 3)
+            {
+                download.DownloadCount++;
+                _downloadRepository.Update(download);
+            }
 
-            // Download file từ server
             return _fileService.DownloadFile(download.FileUrl);
         }
 

@@ -110,11 +110,11 @@ namespace BE_SWP391.Controllers
         }
 
         [HttpGet("{id}/download")]
-        public IActionResult DownloadFile(int id)
+        public IActionResult DownloadFile(int id, int roleId)
         {
             try
             {
-                var result = _downloadService.DownloadFile(id);
+                var result = _downloadService.DownloadFile(id,roleId);
                 return File(result.FileContent, result.ContentType, result.FileName);
             }
             catch (FileNotFoundException ex)

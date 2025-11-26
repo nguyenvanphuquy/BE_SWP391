@@ -20,6 +20,7 @@ namespace BE_SWP391.Services.Interfaces
         List<UserDataResponse> GetUserDataByUserId(int userId);
         List<DataForUserResponse> GetDataForUser(int userId);
         ReportOrderResponse GetReportOrder(int userId);
+        PackageDetailResponse GetPackageDetails(int packageId);
 
     }
 }

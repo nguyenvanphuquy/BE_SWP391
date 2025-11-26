@@ -23,5 +23,6 @@ namespace BE_SWP391.Repositories.Interfaces
         List<UserDataResponse> GetUserDataByUserId(int userId);
         List<DataForUserResponse> GetDataForUser(int userId);
         ReportOrderResponse GetReportOrder(int userId);
+        PackageDetailResponse GetPackageDetails(int packageId);
     }
 }
