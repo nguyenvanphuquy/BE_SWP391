@@ -7,6 +7,7 @@ using BE_SWP391.Repositories.Interfaces;
 using BE_SWP391.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace BE_SWP391.Services.Implementations
 {
@@ -33,6 +34,39 @@ namespace BE_SWP391.Services.Implementations
         }
         public CreatePackageResponse Create(DataPackageRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.PackageName))
+                throw new Exception("Tên bộ dữ liệu không được bỏ trống!");
+
+            if (request.PackageName.Length < 3 || request.PackageName.Length > 150)
+                throw new Exception("Tên bộ dữ liệu phải từ 3–150 ký tự!");
+
+            if (string.IsNullOrWhiteSpace(request.Version))
+                throw new Exception("Phiên bản không được bỏ trống!");
+
+            // version hợp lệ: v1.0, 1.0.0, 2024.12 ...
+            var versionRegex = @"^(v?\d+(\.\d+){0,2})$";
+            if (!Regex.IsMatch(request.Version, versionRegex, RegexOptions.IgnoreCase))
+                throw new Exception("Phiên bản không đúng định dạng! Ví dụ: v1.0 hoặc 1.0.3");
+
+            if (string.IsNullOrWhiteSpace(request.Description) || request.Description.Length < 10)
+                throw new Exception("Mô tả phải có ít nhất 10 ký tự!");
+
+            // Metadata Validation
+            if (request.MetaData == null)
+                throw new Exception("Metadata không được để trống!");
+
+            if (string.IsNullOrWhiteSpace(request.MetaData.Type))
+                throw new Exception("Loại Metadata không được để trống!");
+
+            if (string.IsNullOrWhiteSpace(request.MetaData.Title))
+                throw new Exception("Tiêu đề Metadata không được để trống!");
+
+            if (request.MetaData.Title.Length < 3 || request.MetaData.Title.Length > 150)
+                throw new Exception("Tiêu đề Metadata phải từ 3–150 ký tự!");
+
+            if (request.MetaData.FileSize <= 0 || request.MetaData.FileSize > 1024)
+                throw new Exception("Kích thước file phải lớn hơn 0MB và không vượt quá 1024MB!");
+
             // 1️⃣ Tìm SubCategory theo tên
             var sub = _subCategoryRepository.GetByName(request.SubCategoryName);
             if (sub == null)
@@ -104,12 +138,8 @@ namespace BE_SWP391.Services.Implementations
             dataPackage.PackageName = request.PackageName;
             dataPackage.Description = request.Description;
             dataPackage.Version = request.Version;
-            //dataPackage.ReleaseDate = request.ReleaseDate;
             dataPackage.LastUpdate = DateTime.Now;
-            //dataPackage.Status = request.Status;
             dataPackage.UserId = request.UserId;
-            //dataPackage.SubcategoryId = request.SubcategoryId;
-            //dataPackage.MetadataId = request.MetadataId;
             _dataPackageRepository.Update(dataPackage);
             return ToResponse(dataPackage);
         }

@@ -59,6 +59,7 @@ namespace BE_SWP391.Repositories.Implementations
                         join u in _context.Users on p.UserId equals u.UserId
                         join s in _context.SubCategorys on p.SubcategoryId equals s.SubcategoryId
                         join m in _context.MetaDatas on p.MetadataId equals m.MetadataId
+                        orderby m.CreatedAt descending
                         select new DataForAdminResponse
                         {
                             PackageId = p.PackageId,
@@ -147,7 +148,7 @@ namespace BE_SWP391.Repositories.Implementations
                         from mt in metadataGroup.DefaultIfEmpty()
                         join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId into pricingGroup
                         from pp in pricingGroup.DefaultIfEmpty()
-
+                        orderby dp.ReleaseDate descending
                         where dp.UserId == userId
                         select new UserDataResponse
                         {

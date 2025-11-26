@@ -298,6 +298,7 @@ namespace BE_SWP391.Services.Implementations
                     var invoice = transactions.First().Invoice;
                     if (invoice != null)
                     {
+                        invoice.Status = "paid";
                         invoice.DueDate = DateOnly.FromDateTime(DateTime.UtcNow);
 
                         // ✅ Cập nhật cart status

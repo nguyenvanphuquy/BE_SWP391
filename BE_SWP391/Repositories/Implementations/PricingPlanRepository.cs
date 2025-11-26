@@ -23,6 +23,19 @@ namespace BE_SWP391.Repositories.Implementations
         }
         public PricingPlanResponse Create(PricingPlanRequest request)
         {
+            if (request.Price <= 0)
+            {
+                throw new Exception("Giá (Price) phải lớn hơn 0.");
+            }
+            if (request.Duration <= 0)
+            {
+                throw new Exception("Thời gian sử dụng (Duration) phải lớn hơn 0.");
+            }
+            if (request.Discount < 0)
+            {
+                throw new Exception("Giảm giá (Discount) không được nhỏ hơn 0.");
+            }
+
             var package = _context.DataPackages.FirstOrDefault(dp => dp.PackageName == request.PackageName);
             if (package == null)
             {
@@ -114,6 +127,7 @@ namespace BE_SWP391.Repositories.Implementations
                          join dp in _context.DataPackages on pp.PackageId equals dp.PackageId into dpGroup
                          from dp in dpGroup.DefaultIfEmpty()
                          where dp.UserId == userId
+                         orderby dp.ReleaseDate descending
                          select new ListPricingResponse
                         {
                             PricingId = pp.PlanId,
