@@ -141,8 +141,12 @@ namespace BE_SWP391.Repositories.Implementations
         public List<UserDataResponse> GetUserDataByUserId(int userId)
         {
             var data = (from dp in _context.DataPackages
-                        join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId
-                        join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId 
+                        join sc in _context.SubCategorys on dp.SubcategoryId equals sc.SubcategoryId 
+                        join mt in _context.MetaDatas on dp.MetadataId equals mt.MetadataId into metadataGroup
+                        from mt in metadataGroup.DefaultIfEmpty()
+                        join pp in _context.PricingPlans on dp.PackageId equals pp.PackageId into pricingGroup
+                        from pp in pricingGroup.DefaultIfEmpty()
+
                         where dp.UserId == userId
                         select new UserDataResponse
                         {
@@ -150,6 +154,7 @@ namespace BE_SWP391.Repositories.Implementations
                             PackageName = dp.PackageName,
                             Description = dp.Description,
                             FileSize = mt.FileSize,
+                            SubCategoryName = sc.SubcategoryName,
                             status = dp.Status,
                             DownloadCount = _context.Downloads.Count(i => i.PackageId == dp.PackageId),
                             Price = pp.Price,
