@@ -7,8 +7,6 @@ public partial class Download
 {
     public int DownloadId { get; set; }
 
-    public int TransactionId { get; set; }
-
     public int PackageId { get; set; }
 
     public DateTime? DownloadDate { get; set; }
@@ -22,6 +20,4 @@ public partial class Download
     public int? DownloadCount { get; set; }
 
     public virtual DataPackage Package { get; set; } = null!;
-
-    public virtual Transaction Transaction { get; set; } = null!;
 }

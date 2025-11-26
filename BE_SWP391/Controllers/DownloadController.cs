@@ -51,8 +51,19 @@ namespace BE_SWP391.Controllers
         {
             try
             {
+                // Validate
+                if (request.File == null)
+                    return BadRequest(new { message = "File là bắt buộc" });
+
+                if (request.PackageId <= 0)
+                    return BadRequest(new { message = "PackageId phải lớn hơn 0" });
+
                 var result = _downloadService.CreateWithFileUpload(request);
-                return Ok(result);
+                return Ok(new
+                {
+                    message = "Tạo download thành công",
+                    data = result
+                });
             }
             catch (ArgumentException ex)
             {
@@ -60,7 +71,7 @@ namespace BE_SWP391.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
+                return StatusCode(500, new { message = $"Lỗi server: {ex.Message}" });
             }
         }
 

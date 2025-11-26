@@ -1,9 +1,8 @@
-﻿using BE_SWP391.Models;
-using BE_SWP391.Models.DTOs.Common;
-using BE_SWP391.Models.DTOs.Request;
-using BE_SWP391.Models.DTOs.Response;
-using BE_SWP391.Models.Entities;
+﻿using BE_SWP391.Models.Entities;
 using BE_SWP391.Repositories.Interfaces;
+using BE_SWP391.Models.DTOs.Response;
+using BE_SWP391.Models.DTOs.Request;
+using BE_SWP391.Models.DTOs.Common;
 using BE_SWP391.Services.Interfaces;
 
 namespace BE_SWP391.Services.Implementations
@@ -48,7 +47,7 @@ namespace BE_SWP391.Services.Implementations
                 DownloadDate = DateTime.UtcNow,
                 FileUrl = request.FileUrl,
                 FileHash = request.FileHash,
-                Status = request.Status ?? "Completed",
+                Status = request.Status ?? "Active",
                 DownloadCount = 0
             };
             _downloadRepository.Create(download);
@@ -57,19 +56,22 @@ namespace BE_SWP391.Services.Implementations
 
         public DownloadResponse CreateWithFileUpload(CreateDownloadWithFileRequest request)
         {
+            // Kiểm tra package tồn tại
             var package = _packageRepository.GetById(request.PackageId);
             if (package == null)
-                throw new ArgumentException("Package không tồn tại");
+                throw new ArgumentException($"Package với ID {request.PackageId} không tồn tại");
 
+            // Upload file
             var fileUploadResult = _fileService.UploadFile(request.File);
 
+            // Tạo download record
             var download = new Download
             {
                 PackageId = request.PackageId,
                 DownloadDate = DateTime.UtcNow,
                 FileUrl = fileUploadResult.FileUrl,
                 FileHash = fileUploadResult.FileHash,
-                Status = "Completed",
+                Status = "Active",
                 DownloadCount = 0
             };
 
@@ -96,6 +98,7 @@ namespace BE_SWP391.Services.Implementations
             var download = _downloadRepository.GetById(id);
             if (download == null) return null;
 
+            // Nếu có file mới, upload file
             if (request.File != null)
             {
                 var fileUploadResult = _fileService.UploadFile(request.File);
@@ -115,7 +118,8 @@ namespace BE_SWP391.Services.Implementations
             var download = _downloadRepository.GetById(id);
             if (download == null) return false;
 
-            if (!string.IsNullOrEmpty(download.FileUrl))
+            // Xóa file vật lý nếu cần
+            if (!string.IsNullOrEmpty(download.FileUrl) && download.FileUrl.StartsWith("/uploads/"))
             {
                 _fileService.DeleteFile(download.FileUrl);
             }
@@ -133,9 +137,11 @@ namespace BE_SWP391.Services.Implementations
             if (string.IsNullOrEmpty(download.FileUrl))
                 throw new FileNotFoundException("File không tồn tại");
 
+            // Tăng download count
             download.DownloadCount++;
             _downloadRepository.Update(download);
 
+            // Download file từ server
             return _fileService.DownloadFile(download.FileUrl);
         }
 

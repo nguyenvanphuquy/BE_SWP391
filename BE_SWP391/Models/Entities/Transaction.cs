@@ -19,8 +19,6 @@ public partial class Transaction
 
     public int PlanId { get; set; }
 
-    public virtual ICollection<Download> Downloads { get; set; } = new List<Download>();
-
     public virtual Invoice Invoice { get; set; } = null!;
 
     public virtual ICollection<PaymentMethod> PaymentMethods { get; set; } = new List<PaymentMethod>();
